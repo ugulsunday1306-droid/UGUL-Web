@@ -26,7 +26,7 @@ python3 -m http.server 8000
 
 ```html
 <iframe
-  src="https://ugulsunday1306-droid.github.io/ugul-web/"
+  src="https://ugulsunday1306-droid.github.io/UGUL-Web/"
   title="UGUL"
   style="width:100%;height:100vh;border:0"
   loading="lazy"
@@ -37,7 +37,7 @@ python3 -m http.server 8000
 
 ```html
 <div style="position:relative;width:100%;padding-top:150%">
-  <iframe src="https://ugulsunday1306-droid.github.io/ugul-web/"
+  <iframe src="https://ugulsunday1306-droid.github.io/UGUL-Web/"
           style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
 </div>
 ```
@@ -47,3 +47,4 @@ python3 -m http.server 8000
 - 이미지 슬롯에 드래그해서 넣는 편집 기능은 **Claude 캔버스 안에서만** 동작합니다. 게시된 사이트에서는 저장이 되지 않습니다. 이미지를 바꾸려면 캔버스에서 수정 후 다시 커밋하세요.
 - 아직 채워지지 않은 슬롯은 점선 자리표시자로 보입니다.
 - 폰트(`jsdelivr`)와 런타임(`unpkg`)은 외부 CDN에서 로드됩니다.
+- 공개 주소는 **대소문자를 구분**합니다. `.../UGUL-Web/` 이어야 하고 `.../ugul-web/` 은 404입니다.
