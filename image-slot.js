@@ -172,10 +172,7 @@
   function load() {
     if (loadP) return loadP;
     loadP = fetch(STATE_FILE)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('sidecar 404'))))
-      // Static hosts (e.g. GitHub Pages) may not serve dot-prefixed files;
-      // fall back to the undotted copy shipped alongside it.
-      .catch(() => fetch(STATE_FILE.replace(/^\./, '')).then((r) => (r.ok ? r.json() : null)))
+      .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         // Merge: sidecar loses to any in-memory change that raced ahead of
         // the fetch (drop or clear) so neither is clobbered by hydration.
