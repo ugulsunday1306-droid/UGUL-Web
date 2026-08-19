@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gloomy Accordion Builder</title>
+  <!-- Google Fonts & Pretendard -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header Section -->
+  <header>
+    <div class="logo-section">
+      <div class="logo-icon">🔮</div>
+      <h1>Gloomy Builder</h1>
+      <span>v1.2.0</span>
+    </div>
+    <div class="actions-section">
+      <!-- Save Button -->
+      <button class="btn btn-primary" id="btn-save" title="프로젝트 저장 (Ctrl+S)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        저장
+      </button>
+      <!-- Save As Button -->
+      <button class="btn" id="btn-save-as" title="다른 이름으로 저장 (Ctrl+Shift+S)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/><path d="M9 13h10M14 9v8"/></svg>
+        다른 이름으로 저장
+      </button>
+      <!-- Undo / Redo Buttons -->
+      <button class="btn" id="btn-undo" title="실행 취소 (Ctrl+Z)" disabled style="opacity: 0.4; cursor: not-allowed;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+        되돌리기
+      </button>
+      <button class="btn" id="btn-redo" title="다시 실행 (Ctrl+Y)" disabled style="opacity: 0.4; cursor: not-allowed;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 17v-6h-6M3 7a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+        다시실행
+      </button>
+      <button class="btn" id="btn-reset">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        초기화
+      </button>
+      <button class="btn" id="btn-copy">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        코드 복사
+      </button>
+      <button class="btn btn-primary" id="btn-download">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        HTML 다운로드
+      </button>
+    </div>
+  </header>
+
+  <!-- App Body Layout -->
+  <main class="app-container">
+    <!-- Sidebar Theme & Styles Customizer -->
+    <aside class="sidebar">
+      <!-- 📁 Project Files Selector Panel -->
+      <div style="border-bottom: 1px dashed rgba(183, 124, 255, 0.2); padding-bottom: 20px; margin-bottom: 10px;">
+        <h2 class="section-title">📁 내 프로젝트 파일</h2>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <!-- Open Local Folder Button -->
+          <button class="btn btn-primary" id="btn-folder-open" style="padding:8px 12px; font-size:12px; justify-content:center; font-weight:bold; letter-spacing:0.02em; border-radius:8px;">
+            📂 로컬 폴더 열기 (추천)
+          </button>
+          <!-- Active File Selection -->
+          <div class="color-picker-wrapper" style="padding: 6px 12px; justify-content: space-between;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple-glow)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <select id="select-active-file" style="background:transparent; border:none; color:var(--text-primary); font-family:inherit; font-size:13px; font-weight:600; width:100%; outline:none; cursor:pointer;">
+              <!-- Dynamically populated options by app.js -->
+            </select>
+          </div>
+          <!-- File Management Buttons -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+            <button class="btn" id="btn-file-import" style="padding:6px; font-size:11px; justify-content:center; white-space:nowrap;">
+              📄 파일 가져오기
+            </button>
+            <button class="btn" id="btn-file-create" style="padding:6px; font-size:11px; justify-content:center; white-space:nowrap;">
+              ➕ 새 파일 생성
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Hidden file uploader -->
+      <input type="file" id="hidden-file-input" accept=".html" style="display:none;">
+
+      <div>
+        <h2 class="section-title">분위기 테마 선택</h2>
+        <div class="theme-preset-grid">
+          <button class="theme-preset-btn active" data-preset="violet">
+            <span class="preset-dot" style="background: linear-gradient(135deg, #17153a, #b77cff);"></span>
+            Midnight Violet
+          </button>
+          <button class="theme-preset-btn" data-preset="cyber">
+            <span class="preset-dot" style="background: linear-gradient(135deg, #0a192f, #00f2fe);"></span>
+            Cyber Neon
+          </button>
+          <button class="theme-preset-btn" data-preset="crimson">
+            <span class="preset-dot" style="background: linear-gradient(135deg, #1f0b0b, #ff3c3c);"></span>
+            Crimson Shadow
+          </button>
+          <button class="theme-preset-btn" data-preset="emerald">
+            <span class="preset-dot" style="background: linear-gradient(135deg, #051a10, #10b981);"></span>
+            Forest Emerald
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="section-title">테마 세부 조정</h2>
+        <div class="config-group">
+          <!-- Background Dark -->
+          <div class="config-item">
+            <label>배경 색상 1 (Deep)</label>
+            <div class="color-picker-wrapper">
+              <input type="color" id="val-color-bg" value="#0c0d1a">
+              <input type="text" class="color-text-input" id="txt-color-bg" value="#0c0d1a" readonly>
+            </div>
+          </div>
+          <!-- Background Soft -->
+          <div class="config-item">
+            <label>배경 색상 2 (Soft)</label>
+            <div class="color-picker-wrapper">
+              <input type="color" id="val-color-bg2" value="#17153a">
+              <input type="text" class="color-text-input" id="txt-color-bg2" value="#17153a" readonly>
+            </div>
+          </div>
+          <!-- Glow Accent -->
+          <div class="config-item">
+            <label>네온 포인트 (Glow)</label>
+            <div class="color-picker-wrapper">
+              <input type="color" id="val-color-glow" value="#b77cff">
+              <input type="text" class="color-text-input" id="txt-color-glow" value="#b77cff" readonly>
+            </div>
+          </div>
+          <!-- Purple Primary -->
+          <div class="config-item">
+            <label>보더 & 그림자 (Purple)</label>
+            <div class="color-picker-wrapper">
+              <input type="color" id="val-color-purple" value="#57419b">
+              <input type="text" class="color-text-input" id="txt-color-purple" value="#57419b" readonly>
+            </div>
+          </div>
+          <!-- Accordion Title Roundness -->
+          <div class="config-item">
+            <label style="display:flex; justify-content:space-between;">
+              <span>열렸을 때 둥글기</span>
+              <span id="radius-val" style="color:var(--purple-glow);">34px</span>
+            </label>
+            <input type="range" id="val-radius" min="10" max="60" value="34" style="accent-color:var(--purple-glow);">
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Editor Main Panel -->
+    <section class="editor-panel" aria-label="에디터 영역">
+      <div class="panel-header">
+        <div class="tab-buttons">
+          <button class="tab-btn active" id="tab-visual">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            비주얼 편집기
+          </button>
+          <button class="tab-btn" id="tab-code">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            HTML 소스코드
+          </button>
+        </div>
+        <div style="font-size:12px; color:var(--text-secondary);" id="edit-indicator">📝 폼을 채우면 실시간 반영됩니다.</div>
+      </div>
+      
+      <div class="editor-content">
+        <!-- Visual Editor Pane -->
+        <div id="visual-form-container" class="active">
+          <!-- Main Title Card -->
+          <div class="form-card">
+            <div class="form-card-header">
+              <span class="form-card-title">📖 메인 헤더 및 타이틀</span>
+            </div>
+            <div class="form-row">
+              <label for="input-main-title">타이틀 텍스트</label>
+              <input type="text" class="form-input" id="input-main-title" value="Gloomy Guide">
+            </div>
+            <div class="form-row">
+              <label for="input-sub-title">안내 영역 라벨</label>
+              <input type="text" class="form-input" id="input-sub-title" value="상세 안내 메뉴">
+            </div>
+            <!-- Custom Font for Main Header -->
+            <div class="form-row">
+              <label for="input-title-font-family">헤더 폰트명</label>
+              <input type="text" class="form-input" id="input-title-font-family" placeholder="예: SchoolSafetyRoundedSmile (선택)" value="">
+            </div>
+            <div class="form-row">
+              <label for="input-title-font-url">헤더 폰트 URL</label>
+              <input type="text" class="form-input" id="input-title-font-url" placeholder="예: https://cdn.jsdelivr.net/... (선택)" value="">
+            </div>
+          </div>
+
+          <!-- Dynamic Accordion Items Container -->
+          <div id="visual-accordion-items" style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Form items will be injected here dynamically by app.js -->
+          </div>
+
+          <!-- Add New Item button -->
+          <button class="add-item-btn" id="btn-add-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            새로운 아코디언 항목 추가
+          </button>
+        </div>
+
+        <!-- Monaco Editor Container -->
+        <div id="monaco-container"></div>
+      </div>
+    </section>
+
+    <!-- Preview Panel -->
+    <section class="preview-panel" aria-label="실시간 프리뷰 영역">
+      <div class="panel-header">
+        <span style="font-weight:700; font-size:13px; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+          👁️ 실시간 프리뷰
+        </span>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="preview-status">
+            <span style="width:6px; height:6px; background:#10b981; border-radius:50%; display:inline-block; box-shadow:0 0 8px #10b981;"></span>
+            실시간 연동됨
+          </div>
+          <button class="card-control-btn" id="btn-refresh-preview" title="새로고침">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="preview-container">
+        <iframe id="preview-frame" class="preview-iframe" title="실시간 웹 프리뷰"></iframe>
+        <div id="preview-loader" class="preview-loading">
+          <div class="spinner"></div>
+          <span style="font-size:13px; color:var(--text-secondary);">프리뷰 빌드 중...</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Notification Overlay -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Monaco Editor Loader -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
+  <!-- Core Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
