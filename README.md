@@ -6,24 +6,28 @@ VRChat 아바타 커미션 포트폴리오 페이지. GitHub Pages 정적 호스
 
 ## 업데이트 방법
 
-이 레포는 Claude 디자인 캔버스가 내보내는 zip 구조를 **그대로** 따릅니다. 그래서 수정 후 절차가 짧습니다.
+이 레포는 Claude 디자인 캔버스가 내보내는 zip 구조를 **그대로** 따릅니다. 이름을 바꿀 필요가 없습니다.
 
-1. 캔버스에서 수정 → zip 내보내기 → 압축 풀기
-2. `Gluumi Portfolio.dc.html` → **`index.html`** 로 이름만 변경 (내용은 손대지 않음)
-3. 레포 → **Add file → Upload files** → 아래 파일을 드래그 → Commit
-   - `index.html` (항상)
-   - `.image-slots.state.json` (이미지를 바꿨을 때만)
-4. 1~2분 뒤 공개 주소에 반영됩니다
+1. 캔버스에서 수정 → zip 내보내기 → **압축 풀기**
+2. 레포 → **Add file → Upload files** → 압축 푼 폴더를 통째로 드래그 → Commit
+3. 1~2분 뒤 공개 주소에 반영됩니다
 
-같은 이름으로 올리면 덮어써집니다. `support.js` / `image-slot.js` / `_ds/`는 캔버스 원본과 동일하므로 평소엔 올릴 필요가 없고, 올려도 문제되지 않습니다.
+GitHub 업로드 화면은 폴더 드래그를 받고 하위 폴더 구조도 그대로 보존합니다 (한 번에 100개 파일, 개당 25MiB). 같은 이름은 덮어써지고, `index.html`은 zip에 없으므로 그대로 남습니다.
 
+바뀐 파일만 올려도 됩니다 — 보통은 `Gluumi Portfolio.dc.html`, 이미지를 바꿨다면 `.image-slots.state.json`까지 두 개면 충분합니다.
+
+> **GitHub은 zip을 풀지 않습니다.** `.zip`을 그대로 올리면 바이너리 파일 하나로 저장되고 사이트는 갱신되지 않습니다. 반드시 압축을 풀고 올리세요.
+
+> 캔버스에서 **페이지 이름을 바꾸면** `index.html` 안의 `TARGET` 한 줄을 새 파일명으로 고쳐주세요.
+>
 > 캔버스에서 **디자인 시스템을 바꾸면** `_ds/` 아래 폴더 이름(해시)이 달라집니다. 그때는 새 `_ds/` 폴더도 함께 올려주세요.
 
 ## 구조
 
 | 파일 | 설명 |
 | --- | --- |
-| `index.html` | 페이지 본문. 캔버스의 `Gluumi Portfolio.dc.html`과 내용 동일 |
+| `index.html` | **고정 진입점.** 아래 `.dc.html`로 넘겨주는 리다이렉트 — 캔버스 zip에는 없는 파일이니 덮어쓰지 마세요 |
+| `Gluumi Portfolio.dc.html` | 페이지 본문. 캔버스 원본 그대로 |
 | `support.js` | 디자인 캔버스 런타임. React/ReactDOM/Babel을 unpkg CDN에서 로드 |
 | `image-slot.js` | `<image-slot>` 커스텀 엘리먼트 |
 | `.image-slots.state.json` | 슬롯에 넣은 이미지 (base64 data URL) |
