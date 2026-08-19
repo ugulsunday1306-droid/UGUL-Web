@@ -153,7 +153,7 @@
   // on SVG blobs is inconsistent). GIF is excluded because the canvas
   // re-encode keeps only the first frame, so an animated GIF would silently
   // go still — better to reject than surprise.
-  const ACCEPT = ['image/png', 'image/jpeg', 'image/webp', 'image/avif'];
+  const ACCEPT = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'image/gif'];
 
   // ── Shared sidecar store ────────────────────────────────────────────────
   // One fetch + immediate write-on-change for every <image-slot> on the
@@ -257,6 +257,17 @@
   // (retina) and at MAX_DIM. WebP keeps alpha and is ~10× smaller than PNG
   // for photos, so there's no need for per-image format picking.
   async function toDataUrl(file, targetW) {
+    // GIFs pass through untouched: the canvas re-encode below flattens
+    // animation to a single frame, and GIF frame data can't be reconstructed
+    // from a canvas snapshot anyway. Skip straight to a raw data URL.
+    if (file.type === 'image/gif') {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+    }
     const bitmap = await createImageBitmap(file);
     try {
       const cap = Math.min(MAX_DIM, Math.max(1, Math.round(targetW * 2)) || MAX_DIM);
@@ -879,7 +890,7 @@
     async _ingest(file) {
       this._setError(null);
       if (!file || ACCEPT.indexOf(file.type) < 0) {
-        this._setError('Drop a PNG, JPEG, WebP, or AVIF image.');
+        this._setError('Drop a PNG, JPEG, WebP, AVIF, or GIF image.');
         return;
       }
       // toDataUrl can take hundreds of ms on a large photo. A Clear or a

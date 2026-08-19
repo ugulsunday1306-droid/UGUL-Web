@@ -6,6 +6,13 @@
 <script src="./support.js"></script>
 </head>
 <body>
+<template id="__bundler_thumbnail" data-bg-color="#161826">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#161826"/>
+    <circle cx="600" cy="380" r="180" fill="none" stroke="#9184d9" stroke-width="6" opacity="0.6"/>
+    <text x="600" y="400" text-anchor="middle" font-family="sans-serif" font-size="64" fill="#e9e9ed" font-weight="500">UGUL</text>
+  </svg>
+</template>
 <x-dc>
 <helmet>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
@@ -239,7 +246,7 @@
             <div style="flex:0 0 clamp(220px, 25vw, 300px); user-select:none;">
               <div style="position:relative; aspect-ratio:3/4; border-radius:20px; overflow:hidden; background:rgba(28,24,46,0.6); border:1px solid rgba(255,255,255,0.16); box-shadow:0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12);">
                 <sc-if value="{{ item.isCompare }}" hint-placeholder-val="{{ false }}">
-                  <div ref="{{ item.setCompareRef }}" style="position:relative; width:100%; height:100%; cursor:ew-resize; touch-action:none;">
+                  <div ref="{{ item.setCompareRef }}" data-compare-id="{{ item.id }}" style="position:relative; width:100%; height:100%; cursor:default;">
                     <image-slot id="{{ item.afterId }}" shape="rect" fit="cover" placeholder="After 이미지를 드롭하세요" style="position:absolute; inset:0; width:100%; height:100%; --ph-color:#fff;"></image-slot>
                     <div style="position:absolute; inset:0; overflow:hidden; clip-path:{{ item.beforeClip }};">
                       <image-slot id="{{ item.beforeId }}" shape="rect" fit="cover" placeholder="Before 이미지를 드롭하세요" style="width:100%; height:100%; --ph-color:#fff;"></image-slot>
@@ -251,16 +258,11 @@
                     <span style="position:absolute; right:10px; bottom:10px; font-size:10px; letter-spacing:0.05em; font-weight:700; color:#fff; background:rgba(20,18,32,0.8); border-radius:6px; padding:3px 8px; pointer-events:none;">AFTER</span>
                   </div>
                 </sc-if>
-                <sc-if value="{{ item.isVideo }}" hint-placeholder-val="{{ false }}">
-                  <div ref="{{ item.setDropZoneRef }}" style="position:relative; width:100%; height:100%;">
-                    <video ref="{{ item.setVideoRef }}" data-video-id="{{ item.id }}" autoplay="" loop="" muted="" playsinline="" style="width:100%; height:100%; object-fit:cover; display:block;"></video>
-                    <sc-if value="{{ item.showVideoPlaceholder }}" hint-placeholder-val="{{ true }}">
-                      <div data-placeholder-id="{{ item.id }}" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; padding:16px; pointer-events:none;">
-                        <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; color:rgba(255,255,255,0.55);">{{ item.mediaHint }}</span>
-                      </div>
-                    </sc-if>
-                    <input type="file" accept="video/webm,video/mp4" onChange="{{ item.onFilePick }}" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; {{ item.fileInputStyle }}">
-                  </div>
+                <sc-if value="{{ item.isVideoFile }}" hint-placeholder-val="{{ false }}">
+                  <video ref="{{ item.setVideoRef }}" preload="none" loop muted playsinline style="width:100%; height:100%; object-fit:cover; display:block;"></video>
+                </sc-if>
+                <sc-if value="{{ item.isGifFile }}" hint-placeholder-val="{{ false }}">
+                  <img ref="{{ item.setImgRef }}" style="width:100%; height:100%; object-fit:cover; display:block;">
                 </sc-if>
                 <sc-if value="{{ item.isImage }}" hint-placeholder-val="{{ true }}">
                   <image-slot id="{{ item.id }}" shape="rect" fit="cover" placeholder="{{ item.mediaHint }}" style="width:100%; height:100%; --ph-color:#fff;"></image-slot>
@@ -389,39 +391,15 @@
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;countMorph&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countFacial&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countParticle&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countAnimation&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countCustom&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countAvatarList&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;Guide 갤러리 개수&quot;},&quot;countAdoption&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;Guide 갤러리 개수&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;countMorph&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countFacial&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countParticle&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countAnimation&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countCustom&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countAvatarList&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;Guide 갤러리 개수&quot;},&quot;countAdoption&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;Guide 갤러리 개수&quot;}}">
 const SECTION_COUNT_KEYS = { '성형': 'countMorph', '페이셜': 'countFacial', '파티클': 'countParticle', '애니메이션': 'countAnimation', '커스텀': 'countCustom' };
-const DEFAULT_SECTION_COUNTS = { '성형': 5, '페이셜': 4, '파티클': 4, '애니메이션': 3, '커스텀': 3 };
+const DEFAULT_SECTION_COUNTS = { '성형': 5, '페이셜': 5, '파티클': 2, '애니메이션': 3, '커스텀': 3 };
+const FACIAL_VIDEOS = ['./facial-1.mp4', './facial-2.mp4', './facial-3.mp4', './facial-4.mp4', './facial-5.mp4'];
+const PARTICLE_VIDEOS = ['./uploads/P1.mp4', './uploads/P2.mp4'];
+const ANIMATION_VIDEOS = ['./uploads/A1.mp4', './uploads/A2.mp4', './uploads/A3.mp4'];
 const CATEGORIES = Object.keys(DEFAULT_SECTION_COUNTS);
-const VIDEO_CATEGORIES = { '페이셜': true, '파티클': true, '애니메이션': true };
 const COMPARE_CATEGORIES = { '성형': true };
-
-// Minimal IndexedDB key-value store for uploaded video blobs (survives
-// reload; localStorage's ~5-10MB quota is too small for video clips).
-function idbOpen() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open('gluumi-media', 1);
-    req.onupgradeneeded = () => { req.result.createObjectStore('videos'); };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-function idbPutVideo(id, blob) {
-  return idbOpen().then((db) => new Promise((resolve, reject) => {
-    const tx = db.transaction('videos', 'readwrite');
-    tx.objectStore('videos').put(blob, id);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  }));
-}
-function idbGetVideo(id) {
-  return idbOpen().then((db) => new Promise((resolve, reject) => {
-    const tx = db.transaction('videos', 'readonly');
-    const req = tx.objectStore('videos').get(id);
-    req.onsuccess = () => resolve(req.result || null);
-    req.onerror = () => reject(req.error);
-  }));
-}
+const GIF_CATEGORIES_LOOKUP = { '페이셜': true, '파티클': true, '애니메이션': true };
 
 const GALLERY_COUNT_KEYS = { avatarlist: 'countAvatarList', adoption: 'countAdoption' };
 const GUIDE_STORAGE_KEY = 'gluumi-guide-data';
@@ -453,7 +431,7 @@ const DEMO_COUNT = 5;
 const ASSETS = ['업데이트 런처', '키 인증 시스템', 'Volume과 함께 Spout 2 OBS 송출\n', 'VMC Protocol', 'Volume 프리셋 저장', '아바타 규격에 관계 없는 포즈시스템'];
 
 class Component extends DCLogic {
-  state = { lightboxUrl: null, openGuide: null, showcaseIndex: 0, page: 'main', detailOpen: false, videoUrls: {}, comparePcts: {} };
+  state = { lightboxUrl: null, openGuide: null, showcaseIndex: 0, page: 'main', detailOpen: false, comparePcts: {} };
   slotEls = {};
 
   setComparePct(id, pct) {
@@ -464,69 +442,14 @@ class Component extends DCLogic {
   bindCompareDrag(el, id) {
     if (!el || el.dataset.omCompareInit) return;
     el.dataset.omCompareInit = '1';
-    const update = (clientX) => {
+    // Hover-only: moving the pointer across the card sets the split, no
+    // click/drag needed. Pointer events are never captured here, so
+    // click-and-drag passes straight through to the carousel track's own
+    // drag-to-scroll handling instead of adjusting the slider.
+    el.addEventListener('pointermove', (e) => {
       const rect = el.getBoundingClientRect();
-      const pct = ((clientX - rect.left) / rect.width) * 100;
+      const pct = ((e.clientX - rect.left) / rect.width) * 100;
       this.setComparePct(id, pct);
-    };
-    let dragging = false;
-    el.addEventListener('pointerdown', (e) => { dragging = true; el.setPointerCapture(e.pointerId); update(e.clientX); });
-    el.addEventListener('pointermove', (e) => { if (dragging) update(e.clientX); });
-    const end = (e) => { dragging = false; if (e.pointerId != null) { try { el.releasePointerCapture(e.pointerId); } catch (err) {} } };
-    el.addEventListener('pointerup', end);
-    el.addEventListener('pointercancel', end);
-  }
-
-  onVideoPick(id, e) {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    this.setVideoFromFile(id, file);
-  }
-
-  onVideoFile(id, file) {
-    if (!file || !/^video\//.test(file.type)) return;
-    this.setVideoFromFile(id, file);
-  }
-
-  setVideoFromFile(id, file) {
-    const url = URL.createObjectURL(file);
-    this.setState((s) => ({ videoUrls: { ...s.videoUrls, [id]: url } }), () => this.syncVideoClones(id, url));
-    // Persist across reload in IndexedDB (much larger quota than
-    // localStorage, so multi-MB clips survive a refresh).
-    idbPutVideo(id, file).catch(() => {});
-  }
-
-  loadPersistedVideos() {
-    const ids = [];
-    Object.keys(DEFAULT_SECTION_COUNTS).forEach((cat) => {
-      if (!VIDEO_CATEGORIES[cat]) return;
-      const n = this.props[SECTION_COUNT_KEYS[cat]] ?? DEFAULT_SECTION_COUNTS[cat];
-      for (let i = 0; i < n; i++) ids.push(cat + '-' + i);
-    });
-    ids.forEach((id) => {
-      idbGetVideo(id).then((blob) => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        this.setState((s) => ({ videoUrls: { ...s.videoUrls, [id]: url } }), () => this.syncVideoClones(id, url));
-      }).catch(() => {});
-    });
-  }
-
-  // Carousels clone their DOM children once for the infinite-loop illusion;
-  // those clones exist outside React, so a video src set after cloning must
-  // be pushed to every clone sharing this id, not just the live-bound node.
-  // Also hide/reveal each clone's placeholder text, since it's a plain DOM
-  // node the React re-render can no longer reach.
-  syncVideoClones(id, url) {
-    requestAnimationFrame(() => {
-      document.querySelectorAll('video[data-video-id="' + id + '"]').forEach((v) => {
-        if (v.src !== url) { v.src = url; v.load(); }
-        v.loop = true;
-        v.play().catch(() => {});
-      });
-      document.querySelectorAll('[data-placeholder-id="' + id + '"]').forEach((p) => {
-        p.style.display = 'none';
-      });
     });
   }
 
@@ -542,9 +465,43 @@ class Component extends DCLogic {
   nextShowcase = () => this.setState((s) => ({ showcaseIndex: (s.showcaseIndex + 1) % SHOWCASE_COUNT }));
   expandShowcase = () => this.openLightbox('main-' + this.state.showcaseIndex);
 
-  componentDidMount() {
-    this.loadPersistedVideos();
+  // Carousels clone their DOM children once for the infinite-loop illusion
+  // (see initCarousel) — those clones exist outside React, so a src set
+  // after cloning must be pushed to every clone sharing this id, not just
+  // the one React re-renders. Also applies to the live-bound node itself.
+  _getVideoObserver() {
+    if (this._videoObserver) return this._videoObserver;
+    this._videoObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const v = entry.target;
+        if (entry.isIntersecting) {
+          if (v.preload !== 'auto') v.preload = 'auto';
+          v.play().catch(() => {});
+        } else {
+          v.pause();
+        }
+      });
+    }, { threshold: 0.25 });
+    return this._videoObserver;
+  }
 
+  bindVideoRef(el, src) {
+    if (!el || !src) return;
+    // Re-invoked every render (the ref callback is a fresh closure each
+    // time), but re-assigning .src reloads the video — guard so a same-src
+    // re-invocation (e.g. from an unrelated setState elsewhere) doesn't
+    // restart/blank it.
+    if (el.dataset.omVideoSrc !== src) {
+      el.src = src;
+      el.dataset.omVideoSrc = src;
+    }
+    el.loop = true;
+    el.muted = true;
+    el.playsInline = true;
+    this._getVideoObserver().observe(el);
+  }
+
+  componentDidMount() {
     // Start ambient particles after the page settles, not during initial
     // load/paint, so first render isn't competing with them.
     this._particlesReady = false;
@@ -627,9 +584,39 @@ class Component extends DCLogic {
 
   // Adapted infinite-loop drag/autoplay carousel: doubles the track's
   // children once, then autoplays scrollLeft, pausing for direct drag.
-  initCarousel(track) {
+  // plainScroll (성형/compare row): the auto-scroll + clone-based loop kept
+  // fighting the hover-driven compare slider (the visible card during a
+  // wrap was a different DOM node than the one being dragged), so that row
+  // skips looping/autoplay entirely and gets a plain native drag-to-scroll.
+  initCarousel(track, plainScroll) {
     if (!track || track.dataset.omInit) return;
     track.dataset.omInit = '1';
+
+    if (plainScroll) {
+      let dragging = false, startX = 0, baseScroll = 0, moved = false;
+      track.style.cursor = 'grab';
+      track.addEventListener('pointerdown', (e) => {
+        dragging = true; moved = false; startX = e.clientX; baseScroll = track.scrollLeft;
+        track.style.cursor = 'grabbing';
+        track.setPointerCapture(e.pointerId);
+      });
+      track.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const walk = e.clientX - startX;
+        if (Math.abs(walk) > 4) moved = true;
+        track.scrollLeft = baseScroll - walk;
+      });
+      const endDrag = (e) => {
+        if (!dragging) return;
+        dragging = false;
+        track.style.cursor = 'grab';
+        if (e && e.pointerId != null) { try { track.releasePointerCapture(e.pointerId); } catch (err) {} }
+      };
+      track.addEventListener('pointerup', endDrag);
+      track.addEventListener('pointercancel', endDrag);
+      track.addEventListener('click', (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
+      return;
+    }
 
     const originals = Array.from(track.children);
     if (originals.length <= 3) return; // fits without scrolling; leave native
@@ -638,9 +625,21 @@ class Component extends DCLogic {
       const clone = child.cloneNode(true);
       clone.setAttribute('aria-hidden', 'true');
       clone.style.pointerEvents = 'none';
+      clone.querySelectorAll('video').forEach((v) => {
+        v.loop = true; v.muted = true; v.playsInline = true;
+        this._getVideoObserver().observe(v);
+      });
+      // The clone is what's actually on screen once the loop wraps past the
+      // originals, but it's pointer-events:none as a whole (avoids double
+      // firing on buttons/lightbox). The compare slider needs hover to work
+      // wherever it's visually shown, so re-enable + rebind just that node,
+      // keyed by the same id its original shares.
+      clone.querySelectorAll('[data-compare-id]').forEach((c) => {
+        c.style.pointerEvents = 'auto';
+        this.bindCompareDrag(c, c.getAttribute('data-compare-id'));
+      });
       track.appendChild(clone);
     });
-
     let originalWidth = track.scrollWidth / 2;
     const measure = () => {
       const first = track.children[0];
@@ -723,54 +722,28 @@ class Component extends DCLogic {
       const n = this.props[SECTION_COUNT_KEYS[cat]] ?? DEFAULT_SECTION_COUNTS[cat];
       const items = Array.from({ length: n }, (_, i) => {
         const id = cat + '-' + i;
-        const isVideo = !!VIDEO_CATEGORIES[cat];
         const isCompare = !!COMPARE_CATEGORIES[cat];
-        const videoSrc = this.state.videoUrls[id] || '';
+        const isGif = !!GIF_CATEGORIES_LOOKUP[cat];
+        const videoSrc = cat === '페이셜' ? FACIAL_VIDEOS[i] : cat === '파티클' ? PARTICLE_VIDEOS[i] : cat === '애니메이션' ? ANIMATION_VIDEOS[i] : null;
         const comparePct = this.state.comparePcts[id] ?? 50;
         return {
           id,
           category: cat,
           title: cat + ' 작업 · ' + String(i + 1).padStart(2, '0'),
-          mediaHint: isVideo ? cat + ' webm/mp4 파일을 클릭해 업로드하세요' : cat + ' 이미지를 드롭하세요',
-          isVideo,
+          mediaHint: isGif ? cat + ' GIF/이미지를 드롭하세요' : cat + ' 이미지를 드롭하세요',
           isCompare,
-          isImage: !isVideo && !isCompare,
+          isVideoFile: !isCompare && !!videoSrc && /\.mp4$/i.test(videoSrc),
+          isGifFile: !isCompare && !!videoSrc && /\.gif$/i.test(videoSrc),
+          videoSrc,
+          setVideoRef: (el) => this.bindVideoRef(el, videoSrc),
+          setImgRef: (el) => { if (el && videoSrc && el.dataset.omImgSrc !== videoSrc) { el.src = videoSrc; el.dataset.omImgSrc = videoSrc; } },
+          isImage: !isCompare && !videoSrc,
           showExpand: !isCompare,
           afterId: id + '-after',
           beforeId: id + '-before',
           comparePct,
           beforeClip: `inset(0 ${100 - comparePct}% 0 0)`,
           setCompareRef: (el) => this.bindCompareDrag(el, id),
-          videoSrc,
-          showVideoPlaceholder: !videoSrc,
-          fileInputStyle: videoSrc
-            ? 'pointer-events:none;'
-            : 'cursor:pointer; z-index:2;',
-          setVideoRef: (el) => {
-            if (!el || !videoSrc) return;
-            if (!el.src) {
-              el.src = videoSrc;
-              el.load();
-              el.play().catch(() => {});
-            }
-            if (!el.dataset.omLoopBound) {
-              el.dataset.omLoopBound = '1';
-              // Explicit re-loop as a safety net in case the native `loop`
-              // attribute doesn't take effect on a src assigned after mount.
-              el.addEventListener('ended', () => { el.currentTime = 0; el.play().catch(() => {}); });
-            }
-          },
-          setDropZoneRef: (el) => {
-            if (!el || el.dataset.omDropInit) return;
-            el.dataset.omDropInit = '1';
-            el.addEventListener('dragover', (e) => { e.preventDefault(); });
-            el.addEventListener('drop', (e) => {
-              e.preventDefault();
-              const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-              this.onVideoFile(id, file);
-            });
-          },
-          onFilePick: (e) => this.onVideoPick(id, e),
           onExpand: () => this.openLightbox(id)
         };
       });
@@ -784,7 +757,7 @@ class Component extends DCLogic {
             const slotEl = el.querySelector('image-slot[id="' + it.id + '"]');
             if (slotEl) this.slotEls[it.id] = slotEl;
           });
-          this.initCarousel(el);
+          this.initCarousel(el, cat === '성형' || cat === '파티클' || cat === '애니메이션');
         }
       };
     });
