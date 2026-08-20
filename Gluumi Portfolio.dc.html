@@ -21,6 +21,10 @@
 <style>
   html { scroll-behavior: smooth; }
   body { margin: 0; }
+  @media (hover: hover) and (pointer: fine) {
+    body[data-cursor="on"], body[data-cursor="on"] * { cursor: none !important; }
+    body[data-cursor="on"] input, body[data-cursor="on"] textarea { cursor: text !important; }
+  }
   @font-face {
     font-family: 'Daeojamjil';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/TheJamsil1Thin.woff2') format('woff2');
@@ -147,7 +151,7 @@
     <a href="#work" style="text-decoration:none; font-size:14px; color:#f3f1fb; opacity:0.85;">작업물</a>
     <a href="#contact" style="text-decoration:none; font-size:14px; color:#f3f1fb; opacity:0.85;">문의</a>
     
-    <button onClick="{{ goSolution }}" style="display:inline-flex; align-items:center; font-weight:500; font-size:13px; color:#f3f1fb; border:1px solid rgba(255,255,255,0.35); border-radius:12px; padding:8px 16px; cursor:pointer; background:rgba(255,255,255,0.08); font-family:inherit;">Solution →</button>
+    <button onClick="{{ goSolution }}" data-cursor-move="1" style="display:inline-flex; align-items:center; font-weight:500; font-size:13px; color:#f3f1fb; border:1px solid rgba(255,255,255,0.35); border-radius:12px; padding:8px 16px; cursor:pointer; background:rgba(255,255,255,0.08); font-family:inherit;">솔루션 소개 →</button>
   </nav>
 
   <!-- Hero -->
@@ -186,7 +190,7 @@
   <section style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
     <div style="position: relative; overflow: hidden; text-align: center; padding: 28px 24px 32px; border-radius: 22px; margin-bottom: 20px; box-shadow: 0px 0px 18px -1px #28292A9F; background: linear-gradient(4deg, #E9E6E6B8, #B3AAD7); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); opacity: 1">
       <h2 style="margin: 0; font-size: 48px; font-weight: 900; letter-spacing: -0.02em; color: #f3f5fe; text-decoration-line: none; line-height: 1.1; text-transform: uppercase">Guide</h2>
-      <div style="width:min(50%,420px); height:2px; margin:16px auto 0; background:linear-gradient(90deg, transparent, #8b5cf6, #57419b, #8b5cf6, transparent);"></div>
+      <div style="width: min(50%,420px); height: 2px; margin: 16px auto 0; background: linear-gradient(180deg, #E8E3FDC4, #E3DAFF)"></div>
     </div>
     <sc-for list="{{ guideItems }}" as="item" hint-placeholder-count="6">
       <div style="position:relative; overflow:hidden; margin-bottom:16px; display:flex; flex-direction:column; background-image:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(148,133,224,0.06)); {{ item.itemStyle }}">
@@ -320,7 +324,7 @@
       <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Features</div>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">
         <sc-for list="{{ features }}" as="f" hint-placeholder-count="6">
-          <div style="display:flex; gap:12px; align-items:flex-start; padding:18px 20px; border-radius:16px; background:rgba(38,32,58,0.65); border:1px solid rgba(255,255,255,0.16); box-shadow:0 8px 22px rgba(0,0,0,0.22);">
+          <div style="display:flex; gap:12px; align-items:flex-start; padding:18px 20px; border-radius:16px; background:rgba(38,32,58,0.65); border:1px solid rgba(255,255,255,0.16); box-shadow:0 8px 22px rgba(0,0,0,0.22); transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;" style-hover="background:rgba(52,44,80,0.78); border-color:rgba(183,124,255,0.6); box-shadow:0 8px 22px rgba(0,0,0,0.22), 0 0 0 1px rgba(183,124,255,0.35), 0 0 22px rgba(183,124,255,0.28);">
             <span style="flex:none; width:22px; height:22px; border-radius:50%; background:rgba(183,124,255,0.35); border:1px solid rgba(255,255,255,0.4); display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff;">✓</span>
             <div>
               <div style="font-weight:700; font-size:15px; margin-bottom:4px;">{{ f.title }}</div>
@@ -380,6 +384,8 @@
       <button onClick="{{ closeLightbox }}" style="position:absolute; top:28px; right:32px; width:40px; height:40px; border-radius:12px; border:1px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); color:#fff; font-size:18px; cursor:pointer;">✕</button>
     </div>
   </sc-if>
+
+  <img ref="{{ setCursorRef }}" src="./cursor-idle.png" alt="" style="position:fixed; left:0; top:0; width:84px; height:75px; pointer-events:none; z-index:9999; opacity:0; will-change:transform; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.45));">
 </div>
 
 </x-dc>
@@ -535,6 +541,82 @@ class Component extends DCLogic {
     this._getVideoObserver().observe(el);
   }
 
+  initCursor() {
+    // Fine-pointer only: a touch device has no cursor to replace, and the
+    // editor needs its own cursor to stay usable.
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    if (document.body.hasAttribute('data-dc-editor-on')) return;
+    const el = this._cursorEl;
+    if (!el || this._cursorOn) return;
+    this._cursorOn = true;
+    document.body.setAttribute('data-cursor', 'on');
+
+    // All four sprites are rendered onto one shared canvas, aligned on the
+    // arrow, at one scale — so size and hotspot are identical across states
+    // and swapping states never makes the cursor jump or resize.
+    const HOT_X = 5.1, HOT_Y = 0.45;
+    const SPRITES = {
+      idle: './cursor-idle.png',
+      move: './cursor-move.png',
+      click: './cursor-click.png',
+      loading: './cursor-loading.png'
+    };
+    Object.keys(SPRITES).forEach((k) => { const p = new Image(); p.src = SPRITES[k]; });
+
+    let tx = innerWidth / 2, ty = innerHeight / 2;
+    let seen = false, pressed = false, state = '';
+    let lastMove = 0, clickUntil = 0, overSolution = false;
+
+    const setState = (s) => {
+      if (s === state) return;
+      state = s;
+      el.src = SPRITES[s];
+    };
+
+    const move = (e) => {
+      tx = e.clientX; ty = e.clientY;
+      lastMove = performance.now();
+      overSolution = !!(e.target && e.target.closest && e.target.closest('[data-cursor-move]'));
+      if (!seen) { seen = true; el.style.opacity = '1'; }
+    };
+    const leave = () => { el.style.opacity = '0'; };
+    const enter = () => { if (seen) el.style.opacity = '1'; };
+    const down = () => { pressed = true; clickUntil = performance.now() + 320; };
+    const up = () => { pressed = false; };
+
+    window.addEventListener('pointermove', move, { passive: true });
+    window.addEventListener('pointerdown', down, { passive: true });
+    window.addEventListener('pointerup', up, { passive: true });
+    document.addEventListener('mouseleave', leave);
+    document.addEventListener('mouseenter', enter);
+    this._cursorCleanup = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerdown', down);
+      window.removeEventListener('pointerup', up);
+      document.removeEventListener('mouseleave', leave);
+      document.removeEventListener('mouseenter', enter);
+      document.body.removeAttribute('data-cursor');
+      cancelAnimationFrame(this._cursorRaf);
+    };
+
+    const tick = () => {
+      const now = performance.now();
+      const still = now - lastMove;
+      let want;
+      if (pressed || now < clickUntil) want = 'click';
+      else if (overSolution) want = 'move';
+      else if (still > 3000) want = 'loading';   // dozes off after 3s idle
+      else want = 'idle';
+      setState(want);
+      el.style.transform = 'translate3d(' + (tx - HOT_X) + 'px,' + (ty - HOT_Y) + 'px,0)';
+      this._cursorRaf = requestAnimationFrame(tick);
+    };
+    el.style.transformOrigin = '0 0';
+    el.style.transition = 'opacity 0.2s ease';
+    setState('idle');
+    this._cursorRaf = requestAnimationFrame(tick);
+  }
+
   componentDidMount() {
     // Start ambient particles after the page settles, not during initial
     // load/paint, so first render isn't competing with them.
@@ -603,6 +685,7 @@ class Component extends DCLogic {
   }
 
   componentWillUnmount() {
+    if (this._cursorCleanup) this._cursorCleanup();
     if (this._onMove) window.removeEventListener('pointermove', this._onMove);
     if (this._onClick) window.removeEventListener('pointerdown', this._onClick);
   }
@@ -922,6 +1005,7 @@ class Component extends DCLogic {
       setShowcaseDragRef: this.setShowcaseDragRef,
       hasLightbox: !!lightboxUrl,
       setLightboxImgRef: (el) => { if (el && lightboxUrl) el.src = lightboxUrl; },
+      setCursorRef: (el) => { if (el) { this._cursorEl = el; this.initCursor(); } },
       closeLightbox: this.closeLightbox,
       pageOffset: this.state.page === 'solution' ? '-50%' : '0%',
       goSolution: this.goSolution,
