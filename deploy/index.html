@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <meta name="ext-resource-dependency" content="./facial-1.mp4" data-resource-id="facial1" />
 <meta name="ext-resource-dependency" content="./facial-2.mp4" data-resource-id="facial2" />
 <meta name="ext-resource-dependency" content="./facial-3.mp4" data-resource-id="facial3" />
@@ -177,7 +176,7 @@
   </header>
 
   <!-- Main showcase stack -->
-  <section style="max-width:1180px; margin:0 auto; padding:0 48px 56px; display:flex; flex-direction:column; align-items:center;">
+  <section style="max-width: 1180px; margin: 0 auto; padding: 0 48px 56px; display: flex; flex-direction: column; align-items: center; width: 1088px; height: 1192px">
     <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:10px; align-self:flex-start;">Main Showcase</div>
     <div ref="{{ setShowcaseDragRef }}" style="position:relative; width:100%; aspect-ratio:1/1; margin-bottom:22px; touch-action:pan-y; cursor:grab;">
       <sc-for list="{{ showcaseCards }}" as="card" hint-placeholder-count="6">
@@ -217,7 +216,7 @@
                   </sc-for>
                 </div>
               </sc-if>
-              <p style="margin:0; font-size:14px; line-height:1.8; color:rgba(255,255,255,0.95); white-space:pre-wrap;">{{ item.text }}</p>
+              <p style="margin: 0; font-size: 16px; line-height: 1.8; color: rgba(255,255,255,0.95); white-space: pre-wrap">{{ item.text }}</p>
               <sc-if value="{{ item.gallery }}" hint-placeholder-val="{{ false }}">
                 <div ref="{{ item.setGalleryRef }}" style="display:flex; gap:16px; overflow-x:auto; scrollbar-width:none; cursor:grab; margin-top:18px; padding:4px 2px 8px; touch-action:pan-x;">
                   <sc-for list="{{ item.galleryItems }}" as="g" hint-placeholder-count="3">
@@ -348,7 +347,7 @@
       <div ref="{{ setDemoRef }}" style="display:flex; gap:20px; overflow-x:auto; scrollbar-width:none; cursor:grab; padding:6px 2px 14px; touch-action:pan-x;">
         <sc-for list="{{ demoItems }}" as="d" hint-placeholder-count="4">
           <div style="flex:0 0 clamp(240px, 30vw, 340px); user-select:none;">
-            <div style="position:relative; aspect-ratio:16/10; border-radius:18px; overflow:hidden; background:rgba(28,24,46,0.6); border:1px solid rgba(255,255,255,0.16); box-shadow:0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12);">
+            <div style="position: relative; aspect-ratio: 16/10; border-radius: 18px; overflow: hidden; background: rgba(28,24,46,0.6); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12); width: 553px; height: 340px">
               <image-slot id="{{ d.id }}" ref="{{ d.setRef }}" shape="rect" fit="cover" placeholder="{{ d.hint }}" style="width:100%; height:100%;"></image-slot>
             </div>
             <div style="padding:10px 2px 0; font-size:13px; color:rgba(243,241,251,0.75);">{{ d.title }}</div>
@@ -359,7 +358,7 @@
 
     <!-- Detailed guide: single button -->
     <section style="max-width:1180px; margin:0 auto; padding:0 48px 40px;">
-      <a href="#detailed-guide" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; font-weight:700; font-size:16px; color:#3b2e6b; border:1px solid rgba(255,255,255,0.5); border-radius:999px; padding:18px 26px; text-decoration:none; background:#ffffff; box-shadow:0 8px 26px rgba(0,0,0,0.25), 0 0 18px rgba(183,124,255,0.3);">상세 이용 가이드 페이지로 이동 →</a>
+      <a href="https://unruly-cetacean-re2n1ax.gamma.site/" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; font-weight:700; font-size:16px; color:#3b2e6b; border:1px solid rgba(255,255,255,0.5); border-radius:999px; padding:18px 26px; text-decoration:none; background:#ffffff; box-shadow:0 8px 26px rgba(0,0,0,0.25), 0 0 18px rgba(183,124,255,0.3);">상세 이용 가이드 페이지로 이동 →</a>
     </section>
 
     <!-- Supported assets list -->
@@ -394,12 +393,12 @@
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;countMorph&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countFacial&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countParticle&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countAnimation&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countCustom&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countAvatarList&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;Guide 갤러리 개수&quot;},&quot;countAdoption&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;Guide 갤러리 개수&quot;}}">
-const SECTION_COUNT_KEYS = { '성형': 'countMorph', '페이셜': 'countFacial', '파티클': 'countParticle', '애니메이션': 'countAnimation', '커스텀': 'countCustom' };
-const DEFAULT_SECTION_COUNTS = { '성형': 5, '페이셜': 5, '파티클': 2, '애니메이션': 3, '커스텀': 3 };
-const FACIAL_VIDEOS = (window.__resources ? [window.__resources.facial1, window.__resources.facial2, window.__resources.facial3, window.__resources.facial4, window.__resources.facial5] : ['./facial-1.mp4', './facial-2.mp4', './facial-3.mp4', './facial-4.mp4', './facial-5.mp4']);
-const PARTICLE_VIDEOS = (window.__resources ? [window.__resources.particle1, window.__resources.particle2] : ['./uploads/P1.mp4', './uploads/P2.mp4']);
-const ANIMATION_VIDEOS = (window.__resources ? [window.__resources.anim1, window.__resources.anim2, window.__resources.anim3] : ['./uploads/A1.mp4', './uploads/A2.mp4', './uploads/A3.mp4']);
+<script type="text/x-dc" data-dc-script data-props="{&quot;countMorph&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countFacial&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countParticle&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countAnimation&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countCustom&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;작업물 카드 개수&quot;},&quot;countAvatarList&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;Guide 갤러리 개수&quot;},&quot;countAdoption&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0,&quot;max&quot;:12,&quot;section&quot;:&quot;Guide 갤러리 개수&quot;}}">
+const SECTION_COUNT_KEYS = { '성형': 'countMorph', '페이셜': 'countFacial', '파티클': 'countParticle', '애니메이션': 'countAnimation', '모델링': 'countCustom' };
+const DEFAULT_SECTION_COUNTS = { '성형': 5, '페이셜': 5, '파티클': 2, '애니메이션': 3, '모델링': 2 };
+const FACIAL_VIDEOS = ['./facial-1.mp4', './facial-2.mp4', './facial-3.mp4', './facial-4.mp4', './facial-5.mp4'];
+const PARTICLE_VIDEOS = ['./uploads/P1.mp4', './uploads/P2.mp4'];
+const ANIMATION_VIDEOS = ['./uploads/A1.mp4', './uploads/A2.mp4', './uploads/A3.mp4'];
 const CATEGORIES = Object.keys(DEFAULT_SECTION_COUNTS);
 const COMPARE_CATEGORIES = { '성형': true };
 const GIF_CATEGORIES_LOOKUP = { '페이셜': true, '파티클': true, '애니메이션': true };
@@ -418,7 +417,7 @@ const GUIDE_DATA = [
   { title: '자주 묻는 질문', kicker: 'FAQ',
     text: 'Q. 작업기간은 어느정도 걸릴까요?\n A. 뚜따까지 된 버추얼 아바타의 완성을 기준으로 할 시, 성형 + 페이셜 + 파츠뚜따 총 7~10일을 잡습니다.\n\nQ. 수정은 얼마나 가능한가요?\nA. 4회를 기준으로 잡습니다만. 크리티컬한 이슈가 생기는 경우, 횟수와는 관계 없이 수정해드립니다.\n\nQ. 비전용 의상도 대응 가능한가요?\nA. 블렌더를 사용해서 직접 바디에 의상을 맞춰드리고있고, 의상 복잡도에 따라 금액과 기간이 상이해집니다.\n\nQ. 헤어 합성도 하나요?\nA. 네 헤어 합성도 가능하고, 헤어 텍스쳐 작업 또한 가능합니다' },
   { title: '주의사항', kicker: 'Notice',
-    text: '작업 전 필요한 자료를 충분히 전달해주세요. 외부 에셋, 헤어, 의상, 악세사리 등은 저작권과 구매 여부 확인이 필요할 수 있습니다.',
+    text: '모델링 : 간단한 의상, 소품, 악세서리 모델링 가능하며 오리지널 헤드 또한 제작합니다.\n오리지널 헤드 : 기본적으로 삼면도 (원화)가 필요하며, 없을 시 원하는 디자인대로 나오지 않을 수 있습니다.\n페이셜 : 기본 쉐이프키가 있는 부스 아바타가 아닌 오리지널 헤드 (쉐이프키가 없는)의 경우, 가격이 상이합니다.\n전용 애니메이션  및 파티클 : 원하는 동작의 상세한 설명이 필요합니다',
     note: '작업 전 상담을 통해 가능 여부를 먼저 확인합니다.' }
 ];
 
@@ -713,13 +712,18 @@ class Component extends DCLogic {
     }, { threshold: 0.01 });
     io.observe(track);
 
+    // Last value autoplay itself wrote, so the scroll listener below can
+    // tell its own writes apart from a user's wheel/trackpad/scrollbar
+    // scroll (which fires the same event but must NOT be overwritten).
+    let autoScrollLeft = -1;
     const step = () => {
       rafId = null;
       if (!visible) return;
       if (!dragging && !cooling && !hovered) {
         acc += 0.28;
         if (acc >= originalWidth) acc -= originalWidth;
-        track.scrollLeft = Math.floor(acc);
+        autoScrollLeft = Math.floor(acc);
+        track.scrollLeft = autoScrollLeft;
       }
       rafId = requestAnimationFrame(step);
     };
@@ -759,6 +763,47 @@ class Component extends DCLogic {
     track.addEventListener('pointercancel', endDrag);
     track.addEventListener('mouseenter', () => { measure(); if (!dragging) hovered = true; });
     track.addEventListener('mouseleave', () => { hovered = false; });
+    // A native OS file drag (dropping an image onto a slot) never fires
+    // mouseenter/mouseleave — only dragenter/dragover/drop — so autoplay
+    // above kept scrolling under the cursor the whole time a user was
+    // positioning a drop, silently shifting the target out from under it.
+    // Pausing on dragover (and resuming on dragleave/drop) closes that gap.
+    // Native scroll (trackpad swipe, shift+wheel, scrollbar) bypassed the
+    // wrap that pointermove and autoplay both do, so scrolling right landed
+    // the user in the CLONE half — cards that look identical to the originals
+    // but are pointer-events:none, so a file drop there hits nothing and
+    // silently does nothing. That made the LAST cards (the ones you have to
+    // scroll right to reach) effectively un-droppable. Wrap native scrolling
+    // back into the originals the same way, so every visible card is real.
+    let wrapping = false;
+    track.addEventListener('scroll', () => {
+      if (dragging || wrapping || !originalWidth) return;
+      const at = track.scrollLeft;
+      // A user scroll (not autoplay's own write): adopt it as the new
+      // position and hold autoplay for a beat, exactly like the pointer
+      // drag path. Without this, step() overwrote the user's scroll on the
+      // very next frame, so cards past the autoplay position could never be
+      // brought into view — let alone dropped onto.
+      if (Math.abs(at - autoScrollLeft) > 2) {
+        acc = at;
+        cooling = true;
+        clearTimeout(cooldownTimer);
+        cooldownTimer = setTimeout(() => { cooling = false; }, 1200);
+      }
+      if (track.scrollLeft >= originalWidth) {
+        wrapping = true;
+        track.scrollLeft -= originalWidth;
+        acc = track.scrollLeft;
+        autoScrollLeft = track.scrollLeft;
+        wrapping = false;
+      }
+    }, { passive: true });
+
+    // Capture phase: a slot's own dragover/drop handler stopPropagation()s,
+    // so a bubble-phase listener here would never see the event at all.
+    track.addEventListener('dragover', () => { hovered = true; }, true);
+    track.addEventListener('dragleave', () => { hovered = false; }, true);
+    track.addEventListener('drop', () => { hovered = false; }, true);
     track.addEventListener('click', (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
   }
 
