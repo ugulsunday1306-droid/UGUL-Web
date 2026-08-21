@@ -204,7 +204,7 @@
     </div>
     <sc-for list="{{ guideItems }}" as="item" hint-placeholder-count="6">
       <div style="position:relative; overflow:hidden; margin-bottom:16px; display:flex; flex-direction:column; background-image:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(148,133,224,0.06)); {{ item.itemStyle }}">
-        <button onClick="{{ item.toggle }}" type="button" style="position:relative; z-index:1; flex:none; width:100%; margin:0; border:0; outline:0; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; padding:18px 26px; font-family:'Inter',sans-serif; font-weight:700; font-size:16px; overflow:hidden; {{ item.btnStyle }}">
+        <button onClick="{{ item.toggle }}" type="button" data-cursor-hover="1" style="position:relative; z-index:1; flex:none; width:100%; margin:0; border:0; outline:0; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; padding:18px 26px; font-family:'Inter',sans-serif; font-weight:700; font-size:16px; overflow:hidden; {{ item.btnStyle }}">
           <span style="position:absolute; top:0; width:70%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); transform:skewX(-22deg); pointer-events:none; z-index:0; {{ item.shimmerStyle }}"></span>
           <span style="position: relative; z-index: 1; font-size: 23px; font-weight: 800; font-style: normal; text-align: center; text-transform: none; line-height: 0.85">{{ item.title }}</span>
           <span style="position:relative; z-index:1; font-size:12px; {{ item.arrowStyle }}">▾</span>
@@ -308,7 +308,7 @@
   <div style="width:50%; flex:none;">
 
     <nav style="display:flex; align-items:center; gap:22px; padding:16px 40px; margin:16px 24px 0; position:sticky; top:16px; z-index:20; border-radius:14px; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid rgba(255,255,255,0.18); box-shadow:0px 8px 32px 0px #00000040; background:linear-gradient(180deg, #FFFFFF1A, #CBC8D08B);">
-      <button onClick="{{ goMain }}" style="display:inline-flex; align-items:center; gap:8px; font-weight:500; font-size:13px; color:#f3f1fb; border:1px solid rgba(255,255,255,0.35); border-radius:12px; padding:8px 16px; cursor:pointer; background:rgba(255,255,255,0.08); font-family:inherit;">← Main</button>
+      <button onClick="{{ goMain }}" data-cursor-move="1" style="display:inline-flex; align-items:center; gap:8px; font-weight:500; font-size:13px; color:#f3f1fb; border:1px solid rgba(255,255,255,0.35); border-radius:12px; padding:8px 16px; cursor:pointer; background:rgba(255,255,255,0.08); font-family:inherit;">← Main</button>
       <span style="font-weight:600; font-size:20px; letter-spacing:0.02em; margin-left:auto;">SOLUTION GUIDE</span>
     </nav>
 
@@ -395,7 +395,7 @@
     </div>
   </sc-if>
 
-  <img ref="{{ setCursorRef }}" src="./cursor-idle.png" alt="" style="position:fixed; left:0; top:0; width:84px; height:75px; pointer-events:none; z-index:9999; opacity:0; will-change:transform; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.45));">
+  <img ref="{{ setCursorRef }}" src="./cursor-idle.png" alt="" style="position:fixed; left:0; top:0; width:97.5px; height:90px; pointer-events:none; z-index:9999; opacity:0; will-change:transform; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.45));">
 </div>
 
 </x-dc>
@@ -564,10 +564,11 @@ class Component extends DCLogic {
     // All four sprites are rendered onto one shared canvas, aligned on the
     // arrow, at one scale — so size and hotspot are identical across states
     // and swapping states never makes the cursor jump or resize.
-    const HOT_X = 5.1, HOT_Y = 0.45;
+    const HOT_X = 11.47, HOT_Y = 7.95;
     const SPRITES = {
       idle: './cursor-idle.png',
       move: './cursor-move.png',
+      hover: './cursor-hover.png',
       click: './cursor-click.png',
       loading: './cursor-loading.png'
     };
@@ -575,7 +576,7 @@ class Component extends DCLogic {
 
     let tx = innerWidth / 2, ty = innerHeight / 2;
     let seen = false, pressed = false, state = '';
-    let lastMove = 0, clickUntil = 0, overSolution = false;
+    let lastMove = 0, clickUntil = 0, overSolution = false, overGuide = false;
 
     const setState = (s) => {
       if (s === state) return;
@@ -586,7 +587,9 @@ class Component extends DCLogic {
     const move = (e) => {
       tx = e.clientX; ty = e.clientY;
       lastMove = performance.now();
-      overSolution = !!(e.target && e.target.closest && e.target.closest('[data-cursor-move]'));
+      const t = e.target && e.target.closest ? e.target : null;
+      overSolution = !!(t && t.closest('[data-cursor-move]'));
+      overGuide = !!(t && t.closest('[data-cursor-hover]'));
       if (!seen) { seen = true; el.style.opacity = '1'; }
     };
     const leave = () => { el.style.opacity = '0'; };
@@ -614,6 +617,7 @@ class Component extends DCLogic {
       const still = now - lastMove;
       let want;
       if (pressed || now < clickUntil) want = 'click';
+      else if (overGuide) want = 'hover';
       else if (overSolution) want = 'move';
       else if (still > 3000) want = 'loading';   // dozes off after 3s idle
       else want = 'idle';
