@@ -381,6 +381,27 @@
       </div>
     </section>
 
+    <!-- Avatar live preview (WebGL) -->
+    <section style="max-width:1180px; margin:0 auto; padding:0 48px 96px;">
+      <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Live Demo</div>
+      <div style="border-radius:20px; overflow:hidden; background:rgba(38,32,58,0.65); border:1px solid rgba(255,255,255,0.16); box-shadow:0 8px 26px rgba(0,0,0,0.22);">
+        <button onClick="{{ toggleAvatar }}" data-cursor-move="1" style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 24px; background:none; border:0; color:#f3f1fb; text-align:left; cursor:pointer; font-family:inherit;">
+          <div style="display:flex; flex-direction:column; gap:5px;">
+            <span style="font-size:16px; font-weight:600;">아바타 미리보기</span>
+            <span style="font-size:12px; color:rgba(243,241,251,0.5);">브라우저에서 아바타를 직접 조작해볼 수 있습니다 · 불러오는 데 10초 정도 걸립니다</span>
+          </div>
+          <span style="display:inline-flex; align-items:center; gap:8px; font-size:12px; letter-spacing:0.03em; border:1px solid rgba(255,255,255,0.25); color:rgba(243,241,251,0.85); border-radius:999px; padding:6px 14px; white-space:nowrap;">{{ avatarLabel }}</span>
+        </button>
+        <sc-if value="{{ avatarOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top:1px solid rgba(255,255,255,0.1); padding:20px 24px 24px;">
+            <div style="position:relative; width:100%; aspect-ratio:16/9; min-height:420px; border-radius:14px; overflow:hidden; background:#101014; border:1px solid rgba(255,255,255,0.1);">
+              <iframe ref="{{ setAvatarFrameRef }}" title="Avatar live preview" allow="autoplay; fullscreen; xr-spatial-tracking" style="width:100%; height:100%; border:0; display:block;"></iframe>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+
   </div>
   <!-- ============ /PAGE 2 ============ -->
 
@@ -410,6 +431,7 @@ const COMPARE_CATEGORIES = { '성형': true };
 const GIF_CATEGORIES_LOOKUP = { '페이셜': true, '파티클': true, '애니메이션': true };
 
 const GALLERY_COUNT_KEYS = { avatarlist: 'countAvatarList', adoption: 'countAdoption' };
+const AVATAR_DEMO_URL = 'https://ugulsunday1306-droid.github.io/unity/';
 const GUIDE_STORAGE_KEY = 'gluumi-guide-data';
 const GUIDE_DATA = [
   { title: '작업 순서', kicker: 'Process',
@@ -439,7 +461,7 @@ const DEMO_COUNT = 5;
 const ASSETS = ['업데이트 런처', '키 인증 시스템', 'Volume과 함께 Spout 2 OBS 송출\n', 'VMC Protocol', 'Volume 프리셋 저장', '아바타 규격에 관계 없는 포즈시스템'];
 
 class Component extends DCLogic {
-  state = { lightboxUrl: null, openGuide: null, showcaseIndex: 0, page: 'main', detailOpen: false, comparePcts: {} };
+  state = { lightboxUrl: null, openGuide: null, showcaseIndex: 0, page: 'main', detailOpen: false, comparePcts: {}, avatarOpen: false };
   slotEls = {};
 
   setComparePct(id, pct) {
@@ -597,12 +619,31 @@ class Component extends DCLogic {
     const down = () => { pressed = true; clickUntil = performance.now() + 320; };
     const up = () => { pressed = false; };
 
+    // The iframe swallows pointer events, so the embedded page forwards its own
+    // coordinates by postMessage and we translate them into page space.
+    const onFrameMsg = (e) => {
+      const d = e.data;
+      if (!d || d.__gluumiCursor !== true) return;
+      const f = this._avatarFrame;
+      if (!f) return;
+      if (d.type === 'leave') { pressed = false; return; }
+      const r = f.getBoundingClientRect();
+      tx = r.left + d.x; ty = r.top + d.y;
+      lastMove = performance.now();
+      overSolution = false; overGuide = false;
+      pressed = !!d.down;
+      if (d.down) clickUntil = performance.now() + 320;
+      if (!seen) seen = true;
+      el.style.opacity = '1';
+    };
+    window.addEventListener('message', onFrameMsg);
     window.addEventListener('pointermove', move, { passive: true });
     window.addEventListener('pointerdown', down, { passive: true });
     window.addEventListener('pointerup', up, { passive: true });
     document.addEventListener('mouseleave', leave);
     document.addEventListener('mouseenter', enter);
     this._cursorCleanup = () => {
+      window.removeEventListener('message', onFrameMsg);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerdown', down);
       window.removeEventListener('pointerup', up);
@@ -895,6 +936,12 @@ class Component extends DCLogic {
   }
 
   renderVals() {
+    const avatarVals = {
+      avatarOpen: this.state.avatarOpen,
+      avatarLabel: this.state.avatarOpen ? '접기' : '열기',
+      toggleAvatar: () => this.setState((s) => ({ avatarOpen: !s.avatarOpen })),
+      setAvatarFrameRef: (el) => { this._avatarFrame = el; if (el && !el.src) el.src = AVATAR_DEMO_URL; }
+    };
     const sections = CATEGORIES.map((cat) => {
       const n = this.props[SECTION_COUNT_KEYS[cat]] ?? DEFAULT_SECTION_COUNTS[cat];
       const items = Array.from({ length: n }, (_, i) => {
@@ -1009,6 +1056,7 @@ class Component extends DCLogic {
     });
 
     return {
+      ...avatarVals,
       sections,
       guideItems,
       showcaseCards,
