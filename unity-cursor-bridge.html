@@ -1,0 +1,44 @@
+<!--
+  Unity WebGL 빌드의 index.html 에 붙여넣으세요.
+  </body> 바로 앞에 두면 됩니다.
+
+  하는 일
+  - 유니티 캔버스 위에서 브라우저 기본 커서를 숨김
+  - 마우스 좌표와 버튼 상태를 부모 페이지(포트폴리오)로 전달
+    → 부모가 자기 커스텀 커서를 그 위치에 그림
+  유니티 입력에는 전혀 간섭하지 않습니다 (listener 는 passive, preventDefault 없음).
+-->
+<style>
+  html, body, canvas, #unity-canvas, #unity-container { cursor: none !important; }
+</style>
+<script>
+(function () {
+  if (window.parent === window) return;   // 단독으로 열었을 때는 아무것도 안 함
+
+  var post = function (data) {
+    data.__gluumiCursor = true;
+    try { window.parent.postMessage(data, '*'); } catch (e) {}
+  };
+
+  var down = false;
+
+  window.addEventListener('pointermove', function (e) {
+    post({ x: e.clientX, y: e.clientY, down: down });
+  }, { passive: true });
+
+  window.addEventListener('pointerdown', function (e) {
+    down = true;
+    post({ x: e.clientX, y: e.clientY, down: true });
+  }, { passive: true });
+
+  window.addEventListener('pointerup', function (e) {
+    down = false;
+    post({ x: e.clientX, y: e.clientY, down: false });
+  }, { passive: true });
+
+  window.addEventListener('pointerleave', function () {
+    down = false;
+    post({ type: 'leave' });
+  }, { passive: true });
+})();
+</script>
