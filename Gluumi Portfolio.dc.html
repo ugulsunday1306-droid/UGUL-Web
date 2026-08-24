@@ -378,12 +378,12 @@
         <button onClick="{{ toggleAvatar }}" data-cursor-move="1" style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 24px; background:none; border:0; color:#f3f1fb; text-align:left; cursor:pointer; font-family:inherit;">
           <div style="display:flex; flex-direction:column; gap:5px;">
             <span style="font-size:16px; font-weight:600;">아바타 미리보기</span>
-            <span style="font-size:12px; color:rgba(243,241,251,0.5);">브라우저에서 아바타를 직접 조작해볼 수 있습니다 · 불러오는 데 10초 정도 걸립니다</span>
+            <span style="font-size:12px; color:rgba(243,241,251,0.5);">브라우저에서 아바타를 직접 조작해볼 수 있습니다 · 불러오는 데 10초 정도 걸립니다<br>앱을 클릭하면 아바타가 마우스방향을 바라봐요!</span>
           </div>
           <span style="display:inline-flex; align-items:center; gap:8px; font-size:12px; letter-spacing:0.03em; border:1px solid rgba(255,255,255,0.25); color:rgba(243,241,251,0.85); border-radius:999px; padding:6px 14px; white-space:nowrap;">{{ avatarLabel }}</span>
         </button>
-        <sc-if value="{{ avatarOpen }}" hint-placeholder-val="{{ false }}">
-          <div style="border-top:1px solid rgba(255,255,255,0.1); padding:20px 24px 24px;">
+        <sc-if value="{{ avatarMounted }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ avatarPanelStyle }}">
             <div style="position:relative; width:100%; aspect-ratio:16/9; min-height:420px; border-radius:14px; overflow:hidden; background:#101014; border:1px solid rgba(255,255,255,0.1);">
               <iframe ref="{{ setAvatarFrameRef }}" title="Avatar live preview" allow="autoplay; fullscreen; xr-spatial-tracking" style="width:100%; height:100%; border:0; display:block;"></iframe>
             </div>
@@ -928,8 +928,16 @@ class Component extends DCLogic {
   renderVals() {
     const avatarVals = {
       avatarOpen: this.state.avatarOpen,
+      // Once mounted the iframe stays in the tree so collapsing never re-downloads the build.
+      avatarMounted: this.state.avatarOpen || this._avatarMounted,
+      avatarPanelStyle: this.state.avatarOpen
+        ? { borderTop: '1px solid rgba(255,255,255,0.1)', padding: '20px 24px 24px' }
+        : { display: 'none' },
       avatarLabel: this.state.avatarOpen ? '접기' : '열기',
-      toggleAvatar: () => this.setState((s) => ({ avatarOpen: !s.avatarOpen })),
+      toggleAvatar: () => this.setState((s) => {
+        if (!s.avatarOpen) this._avatarMounted = true;
+        return { avatarOpen: !s.avatarOpen };
+      }),
       // src is set imperatively so the build is fetched only once the panel opens
       setAvatarFrameRef: (el) => {
         this._avatarFrame = el;
