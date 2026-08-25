@@ -730,33 +730,62 @@ class Component extends DCLogic {
   // the floating buttons would scroll out of sight. IntersectionObserver still
   // reports the region clipped by the TOP-LEVEL viewport even across origins,
   // so the visible band is measurable without any cooperation from the host.
+  // A single sentinel is not enough: once the frame is taller than the host
+  // viewport, the visible band keeps the SAME size while it travels, so the
+  // intersection ratio never changes and the observer goes quiet. Instead lay a
+  // ladder of 1px fixed strips across the viewport and watch each one — their
+  // visibility flips as the band moves, which is what we actually need to know.
   _initFabTracking() {
-    if (window.parent === window || this._fabIO) return;
-    // Measure a fixed-position sentinel, not the document: a fixed element spans
-    // exactly this frame's viewport, so the reported intersection is the band the
-    // host is showing. When the frame scrolls internally the sentinel never
-    // moves, so the lift stays 0 and fixed positioning behaves normally.
-    const sentinel = document.createElement('div');
-    sentinel.setAttribute('aria-hidden', 'true');
-    sentinel.style.cssText = 'position:fixed; inset:0; pointer-events:none; visibility:hidden; z-index:-1;';
-    document.body.appendChild(sentinel);
-    this._fabSentinel = sentinel;
-    const apply = (rect) => {
-      if (!rect || !rect.height) return;
-      const vh = window.innerHeight || 0;
-      const lift = Math.max(0, Math.round(vh - rect.bottom));
+    if (window.parent === window) return;
+    const STEP = 8;
+    this._teardownFabTracking();
+    const vh = window.innerHeight || 0;
+    if (!vh) return;
+    const host = document.createElement('div');
+    host.setAttribute('aria-hidden', 'true');
+    host.style.cssText = 'position:fixed; inset:0; pointer-events:none; visibility:hidden; z-index:-1;';
+    const strips = [];
+    for (let off = 0; off <= vh; off += STEP) {
+      const s = document.createElement('div');
+      s.style.cssText = 'position:absolute; left:0; width:1px; height:1px; bottom:' + off + 'px;';
+      s._fabOffset = off;
+      host.appendChild(s);
+      strips.push(s);
+    }
+    document.body.appendChild(host);
+    this._fabHost = host;
+
+    const visible = new Set();
+    const apply = () => {
+      if (!visible.size) return;
+      let lift = Infinity;
+      visible.forEach((off) => { if (off < lift) lift = off; });
       document.querySelectorAll('[data-fab]').forEach((el) => {
         el.style.bottom = (parseFloat(el.dataset.fab) || 0) + lift + 'px';
       });
     };
-    // Many thresholds: the callback only fires on threshold crossings, and a
-    // tall frame needs fine steps to track a host scroll smoothly.
-    const thresholds = [];
-    for (let i = 0; i <= 500; i += 1) thresholds.push(i / 500);
     this._fabIO = new IntersectionObserver((entries) => {
-      apply(entries[entries.length - 1].intersectionRect);
-    }, { threshold: thresholds });
-    this._fabIO.observe(sentinel);
+      entries.forEach((e) => {
+        const off = e.target._fabOffset;
+        if (e.isIntersecting) visible.add(off); else visible.delete(off);
+      });
+      apply();
+    }, { threshold: 0 });
+    strips.forEach((s) => this._fabIO.observe(s));
+
+    if (!this._fabResize) {
+      this._fabResize = () => {
+        clearTimeout(this._fabResizeT);
+        this._fabResizeT = setTimeout(() => this._initFabTracking(), 150);
+      };
+      window.addEventListener('resize', this._fabResize, { passive: true });
+    }
+  }
+
+  _teardownFabTracking() {
+    if (this._fabIO) { this._fabIO.disconnect(); this._fabIO = null; }
+    if (this._fabHost && this._fabHost.parentNode) this._fabHost.parentNode.removeChild(this._fabHost);
+    this._fabHost = null;
   }
 
   // Reveal is driven by rect math on scroll rather than IntersectionObserver:
