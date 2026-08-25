@@ -72,6 +72,53 @@
     font-display: swap;
   }
   @keyframes heroIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes navPulse {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(183,124,255,0.14), 0 0 12px rgba(183,124,255,0.20); border-color: rgba(183,124,255,0.45); }
+    50%      { box-shadow: 0 0 0 1px rgba(183,124,255,0.40), 0 0 26px rgba(183,124,255,0.55); border-color: rgba(203,160,255,0.9); }
+  }
+  [data-hero].hero-run { animation: heroIn 0.9s cubic-bezier(.22,1,.36,1) both; }
+  /* Hover highlight: one accent treatment for everything the pointer lands on.
+     :not(:has(:hover)) keeps only the innermost element lit, so nested text
+     inside a card does not stack two glows. */
+  h1:hover:not(:has(:hover)), h2:hover:not(:has(:hover)), h3:hover:not(:has(:hover)),
+  h4:hover:not(:has(:hover)), p:hover:not(:has(:hover)), li:hover:not(:has(:hover)),
+  span:hover:not(:has(:hover)), a:hover:not(:has(:hover)) {
+    color: #f7f2ff;
+    text-shadow: 0 0 14px rgba(183,124,255,0.65), 0 0 28px rgba(183,124,255,0.3);
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+  }
+  /* Guide accordion headers: ring the whole button, and keep the inner label
+     from lighting up on its own so the highlight reads as one surface. */
+  [data-guide-btn]:hover {
+    box-shadow: 0 0 0 1px rgba(183,124,255,0.55), 0 0 26px rgba(183,124,255,0.4), inset 0 0 22px rgba(183,124,255,0.18);
+    transition: box-shadow 0.22s ease;
+  }
+  [data-guide-btn]:hover span { text-shadow: 0 0 14px rgba(183,124,255,0.6); }
+  [data-guide-btn] { transition: box-shadow 0.22s ease; }
+  /* Light surfaces carry dark text, so they get an accent ring instead of the
+     pale glow, which would wash the text out. */
+  [data-light]:hover, [data-light] *:hover {
+    color: #3d2478;
+    text-shadow: 0 0 10px rgba(122,86,205,0.55), 0 0 20px rgba(122,86,205,0.28);
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+  }
+  [data-carousel-track] > div:hover > div:first-child,
+  footer:hover:not(:has(:hover)) {
+    box-shadow: 0 0 0 1px rgba(183,124,255,0.5), 0 0 26px rgba(183,124,255,0.35);
+    transition: box-shadow 0.22s ease;
+  }
+  [data-carousel-track] > div > div:first-child { transition: box-shadow 0.22s ease; }
+  /* Scroll reveal. The hiding rule only applies once JS marks the body, so
+     content is never stuck invisible, and the state lives on a class the
+     template never sets — a React re-render can't wipe it. */
+  body.rv-on [data-reveal] { opacity: 0; transform: translateY(26px); transition: opacity 0.7s cubic-bezier(.22,.85,.3,1), transform 0.7s cubic-bezier(.22,.85,.3,1); }
+  body.rv-on [data-reveal].rv-in { opacity: 1; transform: translateY(0); }
+  body.rv-on [data-reveal]:nth-child(2) { transition-delay: 0.08s; }
+  body.rv-on [data-reveal]:nth-child(3) { transition-delay: 0.16s; }
+  body.rv-on [data-reveal]:nth-child(4) { transition-delay: 0.24s; }
+  body.rv-on [data-reveal]:nth-child(5) { transition-delay: 0.32s; }
+  body.rv-on [data-reveal]:nth-child(n+6) { transition-delay: 0.4s; }
+  @media (prefers-reduced-motion: reduce) { body.rv-on [data-reveal] { opacity: 1; transform: none; transition: none; } }
   @keyframes arrowBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
   @keyframes lightboxIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes dustRise {
@@ -161,16 +208,15 @@
     <a href="#work" style="text-decoration:none; font-size:14px; color:#f3f1fb; opacity:0.85;">작업물</a>
     <a href="#contact" style="text-decoration:none; font-size:14px; color:#f3f1fb; opacity:0.85;">문의</a>
     
-    <button onClick="{{ goSolution }}" data-cursor-move="1" style="display:inline-flex; align-items:center; font-weight:500; font-size:13px; color:#f3f1fb; border:1px solid rgba(255,255,255,0.35); border-radius:12px; padding:8px 16px; cursor:pointer; background:rgba(255,255,255,0.08); font-family:inherit;">솔루션 소개 →</button>
   </nav>
 
   <!-- Hero -->
-  <header style="max-width:1180px; margin:0 auto; padding:96px 48px 88px; animation:heroIn 0.9s cubic-bezier(.22,1,.36,1) both;">
+  <header data-hero="1" style="max-width:1180px; margin:0 auto; padding:96px 48px 88px;">
     <div style="display:inline-block; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:18px; padding:6px 14px; border-radius:999px; background:rgba(255,255,255,0.10); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.18);">VIRTUAL&nbsp;AVATAR CRAFT</div>
     <h1 style="font-size:clamp(36px,5.4vw,58px); font-weight:600; letter-spacing:-0.02em; line-height:1.12; margin:18px 0 22px; max-width:760px;">아바타에 디테일을 더하는<br>정교한 작업</h1>
     <p style="font-size:17px; line-height:1.7; color:rgba(243,241,251,0.72); max-width:520px; margin:0 0 36px;">성형, 페이셜, 파티클, 애니메이션까지 — 상담부터 최종 납품까지 하나의 흐름으로 세심하게 진행합니다.</p>
     <div style="display:flex; gap:12px; margin-bottom:64px;">
-      <a href="#work" style="display:inline-flex; align-items:center; font-weight:500; font-size:14px; color:#12111f; border:1px solid rgba(255,255,255,0.5); border-radius:14px; padding:11px 22px; text-decoration:none; background:rgba(255,255,255,0.85); backdrop-filter:blur(10px);">작업물 보기</a>
+      <a href="#work" data-light="1" style="display:inline-flex; align-items:center; font-weight:500; font-size:14px; color:#12111f; border:1px solid rgba(255,255,255,0.5); border-radius:14px; padding:11px 22px; text-decoration:none; background:rgba(255,255,255,0.85); backdrop-filter:blur(10px);">작업물 보기</a>
       <a href="#contact" style="display:inline-flex; align-items:center; font-weight:500; font-size:14px; color:#f3f1fb; border:1px solid rgba(255,255,255,0.3); border-radius:14px; padding:11px 22px; text-decoration:none; background:rgba(255,255,255,0.08); backdrop-filter:blur(10px);">문의하기</a>
     </div>
     <div style="display:flex; align-items:center; gap:10px; color:rgba(243,241,251,0.45); font-size:12px; animation:arrowBob 2.2s ease-in-out infinite;">
@@ -197,14 +243,14 @@
   </section>
 
   <!-- Guide accordion -->
-  <section style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
+  <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
     <div style="position: relative; overflow: hidden; text-align: center; padding: 28px 24px 32px; border-radius: 22px; margin-bottom: 20px; box-shadow: 0px 0px 18px -1px #28292A9F; background: linear-gradient(4deg, #E9E6E6B8, #B3AAD7); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); opacity: 1">
       <h2 style="margin: 0; font-size: 48px; font-weight: 900; letter-spacing: -0.02em; color: #f3f5fe; text-decoration-line: none; line-height: 1.1; text-transform: uppercase">Guide</h2>
       <div style="width: min(50%,420px); height: 2px; margin: 16px auto 0; background: linear-gradient(180deg, #E8E3FDC4, #E3DAFF)"></div>
     </div>
     <sc-for list="{{ guideItems }}" as="item" hint-placeholder-count="6">
-      <div style="position:relative; overflow:hidden; margin-bottom:16px; display:flex; flex-direction:column; background-image:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(148,133,224,0.06)); {{ item.itemStyle }}">
-        <button onClick="{{ item.toggle }}" type="button" data-cursor-hover="1" style="position:relative; z-index:1; flex:none; width:100%; margin:0; border:0; outline:0; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; padding:18px 26px; font-family:'Inter',sans-serif; font-weight:700; font-size:16px; overflow:hidden; {{ item.btnStyle }}">
+      <div data-reveal="1" style="position:relative; overflow:hidden; margin-bottom:16px; display:flex; flex-direction:column; background-image:linear-gradient(135deg, rgba(255,255,255,0.14), rgba(148,133,224,0.06)); {{ item.itemStyle }}">
+        <button onClick="{{ item.toggle }}" type="button" data-cursor-hover="1" data-guide-btn="1" style="position:relative; z-index:1; flex:none; width:100%; margin:0; border:0; outline:0; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; padding:18px 26px; font-family:'Inter',sans-serif; font-weight:700; font-size:16px; overflow:hidden; {{ item.btnStyle }}">
           <span style="position:absolute; top:0; width:70%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); transform:skewX(-22deg); pointer-events:none; z-index:0; {{ item.shimmerStyle }}"></span>
           <span style="position: relative; z-index: 1; font-size: 23px; font-weight: 800; font-style: normal; text-align: center; text-transform: none; line-height: 0.85">{{ item.title }}</span>
           <span style="position:relative; z-index:1; font-size:12px; {{ item.arrowStyle }}">▾</span>
@@ -216,7 +262,7 @@
               <sc-if value="{{ item.steps }}" hint-placeholder-val="{{ false }}">
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:10px; margin:8px 0 16px;">
                   <sc-for list="{{ item.steps }}" as="step" hint-placeholder-count="6">
-                    <div style="padding:14px 10px; text-align:center; border-radius:12px; background:#ffffff; color:#39296f; font-weight:800; font-size:14px; box-shadow:0 3px 0 rgba(45,36,90,0.2), 0 6px 14px rgba(0,0,0,0.2);">{{ step }}</div>
+                    <div data-light="1" style="padding:14px 10px; text-align:center; border-radius:12px; background:#ffffff; color:#39296f; font-weight:800; font-size:14px; box-shadow:0 3px 0 rgba(45,36,90,0.2), 0 6px 14px rgba(0,0,0,0.2);">{{ step }}</div>
                   </sc-for>
                 </div>
               </sc-if>
@@ -233,7 +279,7 @@
                 </div>
               </sc-if>
               <sc-if value="{{ item.note }}" hint-placeholder-val="{{ false }}">
-                <div style="display:inline-block; margin-top:16px; padding:10px 16px; border-radius:12px; background:rgba(255,255,255,0.9); border:1px solid rgba(255,255,255,0.5); color:#2d2450; font-weight:800; box-shadow:0 2px 10px rgba(0,0,0,0.15);">{{ item.note }}</div>
+                <div data-light="1" style="display:inline-block; margin-top:16px; padding:10px 16px; border-radius:12px; background:rgba(255,255,255,0.9); border:1px solid rgba(255,255,255,0.5); color:#2d2450; font-weight:800; box-shadow:0 2px 10px rgba(0,0,0,0.15);">{{ item.note }}</div>
               </sc-if>
             </div>
           </div>
@@ -243,12 +289,12 @@
   </section>
 
   <!-- Work -->
-  <section id="work" style="max-width:1180px; margin:0 auto; padding:20px 48px 40px;">
+  <section id="work" data-reveal="1" style="max-width:1180px; margin:0 auto; padding:20px 48px 40px;">
     <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:10px;">Selected Work</div>
     <h2 style="font-size:32px; margin:0 0 28px; font-weight:600;">작업물</h2>
 
     <sc-for list="{{ sections }}" as="section" hint-placeholder-count="5">
-      <div style="margin-bottom:56px;">
+      <div data-reveal="1" style="margin-bottom:56px;">
         <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:20px;">
           <h3 style="font-size:22px; margin:0; font-weight:600;">{{ section.category }}</h3>
           <span style="font-size:12px; color:rgba(243,241,251,0.45);">{{ section.count }}</span>
@@ -291,7 +337,7 @@
   </section>
 
   <!-- Contact / Footer -->
-  <footer id="contact" style="max-width:1180px; margin:64px auto 40px; padding:40px; border-radius:24px; background:rgba(255,255,255,0.08); backdrop-filter:blur(22px) saturate(170%); border:1px solid rgba(255,255,255,0.16); box-shadow:0 12px 36px rgba(0,0,0,0.3);">
+  <footer id="contact" data-reveal="1" style="max-width:1180px; margin:64px auto 40px; padding:40px; border-radius:24px; background:rgba(255,255,255,0.08); backdrop-filter:blur(22px) saturate(170%); border:1px solid rgba(255,255,255,0.16); box-shadow:0 12px 36px rgba(0,0,0,0.3);">
     <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:32px;">
       <div style="max-width:440px;">
         <h3 style="font-size:24px; margin:0 0 14px; font-weight:600;">작업 문의</h3>
@@ -308,11 +354,10 @@
   <div style="width:50%; flex:none;">
 
     <nav style="display:flex; align-items:center; gap:22px; padding:16px 40px; margin:16px 24px 0; position:sticky; top:16px; z-index:20; border-radius:14px; backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%); border:1px solid rgba(255,255,255,0.18); box-shadow:0px 8px 32px 0px #00000040; background:linear-gradient(180deg, #FFFFFF1A, #CBC8D08B);">
-      <button onClick="{{ goMain }}" data-cursor-move="1" style="display:inline-flex; align-items:center; gap:8px; font-weight:500; font-size:13px; color:#f3f1fb; border:1px solid rgba(255,255,255,0.35); border-radius:12px; padding:8px 16px; cursor:pointer; background:rgba(255,255,255,0.08); font-family:inherit;">← Main</button>
       <span style="font-weight:600; font-size:20px; letter-spacing:0.02em; margin-left:auto;">SOLUTION GUIDE</span>
     </nav>
 
-    <header style="max-width:1180px; margin:0 auto; padding:72px 48px 56px; display:flex; align-items:center; gap:40px; flex-wrap:wrap; animation:heroIn 0.9s cubic-bezier(.22,1,.36,1) both;">
+    <header data-hero="1" style="max-width:1180px; margin:0 auto; padding:72px 48px 56px; display:flex; align-items:center; gap:40px; flex-wrap:wrap;">
       <div style="flex:1 1 420px; min-width:280px;">
         <div style="display:inline-block; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:18px; padding:6px 14px; border-radius:999px; background:rgba(255,255,255,0.10); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.18);">SETUP&nbsp;SOLUTION</div>
         <h1 style="font-size:clamp(32px,4.6vw,50px); font-weight:600; letter-spacing:-0.02em; line-height:1.16; margin:18px 0 22px; max-width:760px;">전용 솔루션으로<br>아바타를 세팅해드립니다</h1>
@@ -330,11 +375,11 @@
     </header>
 
     <!-- Feature list -->
-    <section style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
       <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Features</div>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">
         <sc-for list="{{ features }}" as="f" hint-placeholder-count="6">
-          <div style="display:flex; gap:12px; align-items:flex-start; padding:18px 20px; border-radius:16px; background:rgba(38,32,58,0.65); border:1px solid rgba(255,255,255,0.16); box-shadow:0 8px 22px rgba(0,0,0,0.22); transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;" style-hover="background:rgba(52,44,80,0.78); border-color:rgba(183,124,255,0.6); box-shadow:0 8px 22px rgba(0,0,0,0.22), 0 0 0 1px rgba(183,124,255,0.35), 0 0 22px rgba(183,124,255,0.28);">
+          <div data-reveal="1" style="display:flex; gap:12px; align-items:flex-start; padding:18px 20px; border-radius:16px; background:rgba(38,32,58,0.65); border:1px solid rgba(255,255,255,0.16); box-shadow:0 8px 22px rgba(0,0,0,0.22); transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;" style-hover="background:rgba(52,44,80,0.78); border-color:rgba(183,124,255,0.6); box-shadow:0 8px 22px rgba(0,0,0,0.22), 0 0 0 1px rgba(183,124,255,0.35), 0 0 22px rgba(183,124,255,0.28);">
             <span style="flex:none; width:22px; height:22px; border-radius:50%; background:rgba(183,124,255,0.35); border:1px solid rgba(255,255,255,0.4); display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff;">✓</span>
             <div>
               <div style="font-weight:700; font-size:15px; margin-bottom:4px;">{{ f.title }}</div>
@@ -346,7 +391,7 @@
     </section>
 
     <!-- Tech demo carousel -->
-    <section style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
       <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Tech Demo</div>
       <div ref="{{ setDemoRef }}" style="display:flex; gap:20px; overflow-x:auto; scrollbar-width:none; cursor:grab; padding:6px 2px 14px; touch-action:pan-x;">
         <sc-for list="{{ demoItems }}" as="d" hint-placeholder-count="4">
@@ -361,12 +406,12 @@
     </section>
 
     <!-- Detailed guide: single button -->
-    <section style="max-width:1180px; margin:0 auto; padding:0 48px 40px;">
-      <a href="https://unruly-cetacean-re2n1ax.gamma.site/" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; font-weight:700; font-size:16px; color:#3b2e6b; border:1px solid rgba(255,255,255,0.5); border-radius:999px; padding:18px 26px; text-decoration:none; background:#ffffff; box-shadow:0 8px 26px rgba(0,0,0,0.25), 0 0 18px rgba(183,124,255,0.3);">상세 이용 가이드 페이지로 이동 →</a>
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 40px;">
+      <a href="https://unruly-cetacean-re2n1ax.gamma.site/" target="_blank" rel="noopener" data-light="1" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; font-weight:700; font-size:16px; color:#3b2e6b; border:1px solid rgba(255,255,255,0.5); border-radius:999px; padding:18px 26px; text-decoration:none; background:#ffffff; box-shadow:0 8px 26px rgba(0,0,0,0.25), 0 0 18px rgba(183,124,255,0.3);">상세 이용 가이드 페이지로 이동 →</a>
     </section>
 
     <!-- Supported assets list -->
-    <section style="max-width:1180px; margin:0 auto; padding:0 48px 72px;">
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 72px;">
       <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Core Feature</div>
       <div style="border-radius:20px; overflow:hidden; background:rgba(38,32,58,0.65); border:1px solid rgba(255,255,255,0.16); box-shadow:0 8px 26px rgba(0,0,0,0.22);">
         <sc-for list="{{ assetItems }}" as="a" hint-placeholder-count="6">
@@ -382,7 +427,7 @@
     </section>
 
     <!-- Avatar live preview (WebGL) -->
-    <section style="max-width:1180px; margin:0 auto; padding:0 48px 96px;">
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 96px;">
       <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Live Demo</div>
       <div style="border-radius:20px; overflow:hidden; background:rgba(38,32,58,0.65); border:1px solid rgba(255,255,255,0.16); box-shadow:0 8px 26px rgba(0,0,0,0.22);">
         <button onClick="{{ toggleAvatar }}" data-cursor-move="1" style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 24px; background:none; border:0; color:#f3f1fb; text-align:left; cursor:pointer; font-family:inherit;">
@@ -406,6 +451,10 @@
   <!-- ============ /PAGE 2 ============ -->
 
   </div>
+
+  <button onClick="{{ togglePage }}" data-cursor-move="1" type="button" title="{{ pageBtnTitle }}" aria-label="{{ pageBtnTitle }}" style="position:fixed; right:28px; bottom:82px; z-index:60; box-sizing:border-box; width:50px; height:50px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:50%; font-family:inherit; font-size:26px; line-height:1; font-weight:800; text-shadow:0 0 10px rgba(183,124,255,0.55); color:#f6f2ff; cursor:pointer; border:1px solid rgba(183,124,255,0.5); background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%); -webkit-backdrop-filter:blur(18px) saturate(170%); animation:navPulse 2.6s ease-in-out infinite; transition:background 0.25s ease, border-color 0.25s ease;" style-hover="background:rgba(60,48,94,0.85); border-color:rgba(197,150,255,0.85); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45);"><svg viewBox="0 0 24 24" width="22" height="22" style="display:block; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; {{ pageArrowStyle }}"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
+
+  <button ref="{{ setTopBtnRef }}" onClick="{{ scrollToTop }}" data-cursor-hover="1" type="button" title="상단으로" style="position:fixed; right:28px; bottom:24px; z-index:60; box-sizing:border-box; width:50px; height:50px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:50%; font-family:inherit; font-size:26px; line-height:1; font-weight:800; text-shadow:0 0 10px rgba(183,124,255,0.55); color:#f6f2ff; cursor:pointer; border:1px solid rgba(183,124,255,0.5); background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%); -webkit-backdrop-filter:blur(18px) saturate(170%); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(183,124,255,0.22); transition:background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;" style-hover="background:rgba(60,48,94,0.85); border-color:rgba(197,150,255,0.85); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45);"><svg viewBox="0 0 24 24" width="22" height="22" style="display:block; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; transform:rotate(-90deg);"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
   <!-- /Sliding page track -->
 
   <!-- Lightbox -->
@@ -486,6 +535,8 @@ class Component extends DCLogic {
   toggleGuide(i) {
     this.setState((s) => ({ openGuide: s.openGuide === i ? null : i }));
   }
+
+  scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   goSolution = () => this.setState({ page: 'solution' });
   goMain = () => this.setState({ page: 'main' });
@@ -672,7 +723,103 @@ class Component extends DCLogic {
     this._cursorRaf = requestAnimationFrame(tick);
   }
 
+  // Streamed rendering keeps replacing nodes, so rescan on every update and
+  // observe whatever is new rather than assuming one pass is enough.
+  // Reveal is driven by rect math on scroll rather than IntersectionObserver:
+  // IO does not fire in hidden/offscreen frames (previews, capture passes),
+  // which used to leave the page stuck in its hidden start state.
+  _revealSweep() {
+    const targets = document.querySelectorAll('[data-reveal]');
+    if (!targets.length) return;
+    document.querySelectorAll('[data-hero]:not(.hero-run)').forEach((el) => el.classList.add('hero-run'));
+    document.body.classList.add('rv-on');
+    const vh = window.innerHeight || 800;
+    const vw = window.innerWidth || 1200;
+    targets.forEach((el) => {
+      if (el.classList.contains('rv-in')) return;
+      const r = el.getBoundingClientRect();
+      if (!r.width && !r.height) return;
+      const inY = r.top < vh * 0.94 && r.bottom > 0;
+      const inX = r.left < vw && r.right > 0;
+      if (inY && inX) el.classList.add('rv-in');
+    });
+  }
+
+  _queueRevealSweep() {
+    if (this._sweepQueued) return;
+    this._sweepQueued = true;
+    // setTimeout rather than rAF: rAF is paused in hidden/offscreen frames,
+    // which would leave the reveal never running there.
+    setTimeout(() => {
+      this._sweepQueued = false;
+      this._revealSweep();
+    }, 16);
+  }
+
+  _revealFailOpen() {
+    document.body.classList.remove('rv-on');
+    document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('rv-in'));
+  }
+
+  _initScrollReveal() {
+    if (this._revealBound) { this._queueRevealSweep(); return; }
+    this._revealBound = true;
+    this._revealScrollHandler = () => this._queueRevealSweep();
+    window.addEventListener('scroll', this._revealScrollHandler, { passive: true });
+    window.addEventListener('resize', this._revealScrollHandler, { passive: true });
+    // Sweep repeatedly while the template streams in and while a page slides.
+    let n = 0;
+    this._revealPoll = setInterval(() => {
+      n += 1;
+      this._revealSweep();
+      if (n > 80) clearInterval(this._revealPoll);
+    }, 120);
+    this._revealSweep();
+  }
+
+  // heroIn lives on a class (not inline style) so it can be restarted; React
+  // does not manage className on these nodes, so a re-render won't wipe it.
+  _runHero() {
+    document.querySelectorAll('[data-hero]').forEach((el) => {
+      el.classList.remove('hero-run');
+      void el.offsetWidth;
+      el.classList.add('hero-run');
+    });
+  }
+
+  // A page switch slides a whole column in, which is not a scroll — so clear
+  // the revealed state and let the sweep play it again as the column settles.
+  _replayScrollReveal() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.body.classList.add('rv-on');
+    document.querySelectorAll('[data-reveal]').forEach((el) => {
+      el.classList.remove('rv-in');
+      void el.offsetWidth;
+    });
+    clearInterval(this._replaySweepT);
+    let n = 0;
+    this._replaySweepT = setInterval(() => {
+      n += 1;
+      this._revealSweep();
+      if (n > 14) clearInterval(this._replaySweepT);
+    }, 90);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    this._queueRevealSweep();
+    if (prevState && prevState.page !== this.state.page) {
+      clearTimeout(this._revealReplayT);
+      this._revealReplayT = setTimeout(() => { this._replayScrollReveal(); this._runHero(); }, 360);
+    }
+  }
+
   componentDidMount() {
+    if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setTimeout(() => this._initScrollReveal(), 16);
+    }
+    // Printing must never catch the page mid-hide.
+    this._revealPrintHandler = () => this._revealFailOpen();
+    window.addEventListener('beforeprint', this._revealPrintHandler);
     // Start ambient particles after the page settles, not during initial
     // load/paint, so first render isn't competing with them.
     this._particlesReady = false;
@@ -1078,6 +1225,11 @@ class Component extends DCLogic {
       setCursorRef: (el) => { if (el) { this._cursorEl = el; this.initCursor(); } },
       closeLightbox: this.closeLightbox,
       pageOffset: this.state.page === 'solution' ? '-50%' : '0%',
+      scrollToTop: this.scrollToTop,
+      setTopBtnRef: (el) => { this._topBtn = el; },
+      pageArrowStyle: this.state.page === 'solution' ? 'transform:rotate(180deg);' : '',
+      pageBtnTitle: this.state.page === 'solution' ? '메인으로' : '솔루션 소개',
+      togglePage: () => this.setState((s) => ({ page: s.page === 'solution' ? 'main' : 'solution' })),
       goSolution: this.goSolution,
       goMain: this.goMain,
       features: FEATURES,
