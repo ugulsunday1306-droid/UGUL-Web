@@ -442,9 +442,9 @@
 
   </div>
 
-  <button onClick="{{ togglePage }}" data-cursor-move="1" type="button" title="{{ pageBtnTitle }}" aria-label="{{ pageBtnTitle }}" style="position:fixed; right:28px; bottom:82px; z-index:60; box-sizing:border-box; width:50px; height:50px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:50%; font-family:inherit; font-size:26px; line-height:1; font-weight:800; text-shadow:0 0 10px rgba(183,124,255,0.55); color:#f6f2ff; cursor:pointer; border:1px solid rgba(183,124,255,0.5); background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%); -webkit-backdrop-filter:blur(18px) saturate(170%); animation:navPulse 2.6s ease-in-out infinite; transition:background 0.25s ease, border-color 0.25s ease;" style-hover="background:rgba(60,48,94,0.85); border-color:rgba(197,150,255,0.85); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45);"><svg viewBox="0 0 24 24" width="22" height="22" style="display:block; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; {{ pageArrowStyle }}"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
+  <button onClick="{{ togglePage }}" data-cursor-move="1" data-fab="82" type="button" title="{{ pageBtnTitle }}" aria-label="{{ pageBtnTitle }}" style="position:fixed; right:28px; bottom:82px; z-index:60; box-sizing:border-box; width:50px; height:50px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:50%; font-family:inherit; font-size:26px; line-height:1; font-weight:800; text-shadow:0 0 10px rgba(183,124,255,0.55); color:#f6f2ff; cursor:pointer; border:1px solid rgba(183,124,255,0.5); background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%); -webkit-backdrop-filter:blur(18px) saturate(170%); animation:navPulse 2.6s ease-in-out infinite; transition:bottom 0.12s linear, background 0.25s ease, border-color 0.25s ease;" style-hover="background:rgba(60,48,94,0.85); border-color:rgba(197,150,255,0.85); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45);"><svg viewBox="0 0 24 24" width="22" height="22" style="display:block; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; {{ pageArrowStyle }}"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
 
-  <button ref="{{ setTopBtnRef }}" onClick="{{ scrollToTop }}" data-cursor-hover="1" type="button" title="상단으로" style="position:fixed; right:28px; bottom:24px; z-index:60; box-sizing:border-box; width:50px; height:50px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:50%; font-family:inherit; font-size:26px; line-height:1; font-weight:800; text-shadow:0 0 10px rgba(183,124,255,0.55); color:#f6f2ff; cursor:pointer; border:1px solid rgba(183,124,255,0.5); background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%); -webkit-backdrop-filter:blur(18px) saturate(170%); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(183,124,255,0.22); transition:background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;" style-hover="background:rgba(60,48,94,0.85); border-color:rgba(197,150,255,0.85); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45);"><svg viewBox="0 0 24 24" width="22" height="22" style="display:block; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; transform:rotate(-90deg);"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
+  <button ref="{{ setTopBtnRef }}" onClick="{{ scrollToTop }}" data-cursor-hover="1" data-fab="24" type="button" title="상단으로" style="position:fixed; right:28px; bottom:24px; z-index:60; box-sizing:border-box; width:50px; height:50px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:50%; font-family:inherit; font-size:26px; line-height:1; font-weight:800; text-shadow:0 0 10px rgba(183,124,255,0.55); color:#f6f2ff; cursor:pointer; border:1px solid rgba(183,124,255,0.5); background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%); -webkit-backdrop-filter:blur(18px) saturate(170%); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(183,124,255,0.22); transition:bottom 0.12s linear, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;" style-hover="background:rgba(60,48,94,0.85); border-color:rgba(197,150,255,0.85); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45);"><svg viewBox="0 0 24 24" width="22" height="22" style="display:block; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; transform:rotate(-90deg);"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
   <!-- /Sliding page track -->
 
   <!-- Lightbox -->
@@ -715,6 +715,40 @@ class Component extends DCLogic {
 
   // Streamed rendering keeps replacing nodes, so rescan on every update and
   // observe whatever is new rather than assuming one pass is enough.
+  // When this page is embedded in a tall iframe, position:fixed anchors to the
+  // iframe's own viewport, which can sit far below what the host page shows —
+  // the floating buttons would scroll out of sight. IntersectionObserver still
+  // reports the region clipped by the TOP-LEVEL viewport even across origins,
+  // so the visible band is measurable without any cooperation from the host.
+  _initFabTracking() {
+    if (window.parent === window || this._fabIO) return;
+    // Measure a fixed-position sentinel, not the document: a fixed element spans
+    // exactly this frame's viewport, so the reported intersection is the band the
+    // host is showing. When the frame scrolls internally the sentinel never
+    // moves, so the lift stays 0 and fixed positioning behaves normally.
+    const sentinel = document.createElement('div');
+    sentinel.setAttribute('aria-hidden', 'true');
+    sentinel.style.cssText = 'position:fixed; inset:0; pointer-events:none; visibility:hidden; z-index:-1;';
+    document.body.appendChild(sentinel);
+    this._fabSentinel = sentinel;
+    const apply = (rect) => {
+      if (!rect || !rect.height) return;
+      const vh = window.innerHeight || 0;
+      const lift = Math.max(0, Math.round(vh - rect.bottom));
+      document.querySelectorAll('[data-fab]').forEach((el) => {
+        el.style.bottom = (parseFloat(el.dataset.fab) || 0) + lift + 'px';
+      });
+    };
+    // Many thresholds: the callback only fires on threshold crossings, and a
+    // tall frame needs fine steps to track a host scroll smoothly.
+    const thresholds = [];
+    for (let i = 0; i <= 500; i += 1) thresholds.push(i / 500);
+    this._fabIO = new IntersectionObserver((entries) => {
+      apply(entries[entries.length - 1].intersectionRect);
+    }, { threshold: thresholds });
+    this._fabIO.observe(sentinel);
+  }
+
   // Reveal is driven by rect math on scroll rather than IntersectionObserver:
   // IO does not fire in hidden/offscreen frames (previews, capture passes),
   // which used to leave the page stuck in its hidden start state.
@@ -807,6 +841,7 @@ class Component extends DCLogic {
     if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setTimeout(() => this._initScrollReveal(), 16);
     }
+    this._initFabTracking();
     // Printing must never catch the page mid-hide.
     this._revealPrintHandler = () => this._revealFailOpen();
     window.addEventListener('beforeprint', this._revealPrintHandler);
