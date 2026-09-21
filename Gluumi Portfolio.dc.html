@@ -922,18 +922,29 @@ class Component extends DCLogic {
     // A guide panel animates its own height, so a measurement taken while one
     // is part-way open is stale by the next frame and the host ends up resizing
     // once per animation frame — twenty-five relayouts of the whole host page
-    // for one accordion. Count a panel that is mid-transition at its full
-    // height: opening jumps straight to the final height, closing keeps the
-    // frame tall (extra height below the content shows nothing) until it lands.
+    // for one accordion. Report where the panels are heading instead, so the
+    // final height goes out on the first frame that moves and the host resizes
+    // once. Two details matter: opening one panel closes another, so both are
+    // in flight and a panel has to be read by its direction of travel; and
+    // mid-transition the grid box is taller than the item inside it, so the box
+    // is what the document height is actually made of.
+    const panelSeen = new WeakMap();
     const pendingPanels = () => {
       let extra = 0;
       const panels = document.querySelectorAll('[data-guide-panel]');
       for (let i = 0; i < panels.length; i++) {
-        const inner = panels[i].firstElementChild;
+        const p = panels[i];
+        const inner = p.firstElementChild;
         if (!inner) continue;
-        const open = inner.getBoundingClientRect().height;
+        const open = p.getBoundingClientRect().height;
         const full = inner.scrollHeight;
-        if (open > 1 && open < full - 1) extra += full - open;
+        const prev = panelSeen.get(p);
+        let target = prev ? prev.target : null;
+        if (prev && Math.abs(open - prev.open) > 0.5) target = open > prev.open ? full : 0;
+        if (open <= 1) target = 0;
+        else if (open >= full - 1) target = full;
+        panelSeen.set(p, { open: open, target: target });
+        if (target !== null && Math.abs(open - target) > 1) extra += target - open;
       }
       return extra;
     };
