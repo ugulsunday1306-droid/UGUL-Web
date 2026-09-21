@@ -245,7 +245,7 @@
           <span style="position: relative; z-index: 1; font-size: 23px; font-weight: 800; font-style: normal; text-align: center; text-transform: none; line-height: 0.85">{{ item.title }}</span>
           <span style="position:relative; z-index:1; font-size:12px; {{ item.arrowStyle }}">▾</span>
         </button>
-        <div style="position:relative; z-index:1; display:grid; {{ item.panelStyle }}">
+        <div data-guide-panel="1" style="position:relative; z-index:1; display:grid; {{ item.panelStyle }}">
           <div style="overflow:hidden;">
             <div style="padding:22px 28px 28px; background:radial-gradient(circle at 16px 16px, rgba(255,255,255,0.18) 2px, transparent 3px) 0 0 / 24px 24px, linear-gradient(135deg, rgba(148,133,224,0.4), rgba(94,70,170,0.3)); {{ item.contentInnerStyle }}">
               <div style="display:inline-block; margin-bottom:14px; padding:5px 18px 8px; color:#fff; font-weight:800; font-size:clamp(18px,2.6vw,24px); border-bottom:2px solid #cabdff; text-shadow:0 0 12px rgba(183,124,255,0.8), 0 0 24px rgba(183,124,255,0.5);">{{ item.kicker }}</div>
@@ -919,7 +919,25 @@ class Component extends DCLogic {
     // host sizes to our own answer the viewport IS the frame: scrollHeight can
     // never come back under the height we last asked for. Measure the content
     // boxes instead, skipping fixed layers, so the frame is free to shrink.
-    const send = () => {
+    // A guide panel animates its own height, so a measurement taken while one
+    // is part-way open is stale by the next frame and the host ends up resizing
+    // once per animation frame — twenty-five relayouts of the whole host page
+    // for one accordion. Count a panel that is mid-transition at its full
+    // height: opening jumps straight to the final height, closing keeps the
+    // frame tall (extra height below the content shows nothing) until it lands.
+    const pendingPanels = () => {
+      let extra = 0;
+      const panels = document.querySelectorAll('[data-guide-panel]');
+      for (let i = 0; i < panels.length; i++) {
+        const inner = panels[i].firstElementChild;
+        if (!inner) continue;
+        const open = inner.getBoundingClientRect().height;
+        const full = inner.scrollHeight;
+        if (open > 1 && open < full - 1) extra += full - open;
+      }
+      return extra;
+    };
+    const measure = () => {
       const d = document.documentElement;
       const b = document.body;
       let h = 0;
@@ -930,10 +948,30 @@ class Component extends DCLogic {
         const bottom = kids[i].getBoundingClientRect().bottom + (window.scrollY || 0);
         if (bottom > h) h = bottom;
       }
-      h = Math.ceil(h) || Math.max(d.scrollHeight, b ? b.scrollHeight : 0, d.offsetHeight);
-      if (!h || Math.abs(h - last) < 2) return;
+      h = Math.ceil(h + pendingPanels());
+      return h || Math.max(d.scrollHeight, b ? b.scrollHeight : 0, d.offsetHeight);
+    };
+    const post = (h) => {
       last = h;
       window.parent.postMessage({ __gluumiEmbed: true, type: 'height', height: h }, '*');
+    };
+    const send = () => {
+      const h = measure();
+      if (!h || Math.abs(h - last) < 2) return;
+      // Growing is urgent: the frame clips whatever does not fit.
+      if (h > last) {
+        if (this._shrinkT) { clearTimeout(this._shrinkT); this._shrinkT = null; }
+        post(h);
+        return;
+      }
+      // Shrinking is not. Let it settle so the host relayouts once at the end
+      // rather than following the tail of an animation down.
+      clearTimeout(this._shrinkT);
+      this._shrinkT = setTimeout(() => {
+        this._shrinkT = null;
+        const h2 = measure();
+        if (h2 && h2 < last - 1) post(h2);
+      }, 260);
     };
     this._autoHeightSend = send;
     if (window.ResizeObserver) {
@@ -951,6 +989,7 @@ class Component extends DCLogic {
   }
 
   _teardownAutoHeight() {
+    if (this._shrinkT) { clearTimeout(this._shrinkT); this._shrinkT = null; }
     if (this._autoHeightRO) { this._autoHeightRO.disconnect(); this._autoHeightRO = null; }
     if (this._autoHeightT) { clearInterval(this._autoHeightT); this._autoHeightT = null; }
     if (this._autoHeightSend) window.removeEventListener('load', this._autoHeightSend);
