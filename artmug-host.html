@@ -115,15 +115,35 @@
     + 'display:flex; flex-direction:column; gap:10px; opacity:0; pointer-events:none;'
     + 'transition:opacity .25s ease;';
 
-  var BASE = 'box-sizing:border-box; width:50px; height:50px; display:flex;'
+  var BASE = 'box-sizing:border-box; width:50px; height:50px; flex:none; display:flex;'
     + 'align-items:center; justify-content:center; padding:0; border-radius:50%;'
-    + 'color:#f6f2ff; cursor:none; border:1px solid rgba(183,124,255,0.5);'
+    + 'color:#f6f2ff; cursor:none; pointer-events:auto;'
+    + 'border:1px solid rgba(183,124,255,0.5);'
     + 'background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%);'
     + '-webkit-backdrop-filter:blur(18px) saturate(170%);'
     + 'box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(183,124,255,0.22);'
     + 'transition:background .25s ease, border-color .25s ease, box-shadow .25s ease;';
 
+  /* 라벨은 평소엔 투명하게 자리만 잡고 있다가 호버 때 미끄러져 들어온다.
+     행 전체는 pointer-events:none이라 숨은 라벨이 artmug 클릭을 가로채지 않는다. */
+  var LABEL = 'pointer-events:none; white-space:nowrap; font-size:13px; font-weight:600;'
+    + 'line-height:1; color:#f6f2ff; padding:9px 14px; border-radius:999px;'
+    + 'border:1px solid rgba(183,124,255,0.45); background:rgba(40,33,62,0.72);'
+    + 'backdrop-filter:blur(18px) saturate(170%);'
+    + '-webkit-backdrop-filter:blur(18px) saturate(170%);'
+    + 'box-shadow:0 6px 18px rgba(0,0,0,0.3), 0 0 14px rgba(183,124,255,0.18);'
+    + 'opacity:0; transform:translateX(8px);'
+    + 'transition:opacity .2s ease, transform .2s ease;';
+
   function mk(title, inner, onclick){
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex; align-items:center; justify-content:flex-end;'
+      + ' gap:10px; pointer-events:none;';
+
+    var tag = document.createElement('span');
+    tag.textContent = title;
+    tag.style.cssText = LABEL;
+
     var b = document.createElement('button');
     b.type = 'button';
     b.title = title;
@@ -134,14 +154,21 @@
       b.style.background = 'rgba(60,48,94,0.85)';
       b.style.borderColor = 'rgba(197,150,255,0.85)';
       b.style.boxShadow = '0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45)';
+      tag.style.opacity = '1';
+      tag.style.transform = 'translateX(0)';
     };
     b.onmouseleave = function(){
       b.style.background = 'rgba(40,33,62,0.72)';
       b.style.borderColor = 'rgba(183,124,255,0.5)';
       b.style.boxShadow = '0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(183,124,255,0.22)';
+      tag.style.opacity = '0';
+      tag.style.transform = 'translateX(8px)';
     };
     b.onclick = onclick;
-    wrap.appendChild(b);
+    row.appendChild(tag);
+    row.appendChild(b);
+    wrap.appendChild(row);
+    b.tag = tag;
     return b;
   }
 
@@ -153,7 +180,7 @@
   }
   var CHEV = '<polyline points="9 6 15 12 9 18"></polyline>';
 
-  mk('작가에게 문의',
+  mk('문의하기',
     svg(1.9, '<path d="M21 12a8 8 0 0 1-8 8H8l-4 3v-4.2A8 8 0 0 1 4 12a8 8 0 0 1 8-8h1a8 8 0 0 1 8 8z"></path>'),
     function(){
       var btn = document.querySelector('.btn_qna');
@@ -161,13 +188,17 @@
     });
 
   var flipped = false;
-  var toggle = mk('페이지 전환', svg(3, CHEV), function(){
+  var toggle = mk('솔루션 보기', svg(3, CHEV), function(){
     send({type:'toggle-page'});
     flipped = !flipped;
     toggle.querySelector('svg').style.transform = flipped ? 'rotate(180deg)' : 'rotate(0deg)';
+    var label = flipped ? '메인으로' : '솔루션 보기';
+    toggle.title = label;
+    toggle.setAttribute('aria-label', label);
+    toggle.tag.textContent = label;
   });
 
-  mk('상단으로', svg(3, CHEV, -90), function(){
+  mk('맨 위로', svg(3, CHEV, -90), function(){
     if (!f) return;
     var top = f.getBoundingClientRect().top + (window.scrollY || window.pageYOffset);
     window.scrollTo({top: top, behavior: 'smooth'});
