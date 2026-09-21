@@ -163,7 +163,7 @@
 </style>
 </helmet>
 
-<div style="position:relative; min-height:100vh; overflow:hidden; font-family:'Daeojamjil','Inter',system-ui,sans-serif; color:#f3f1fb; background:
+<div id="gluumi-top" style="position:relative; min-height:100vh; overflow:hidden; font-family:'Daeojamjil','Inter',system-ui,sans-serif; color:#f3f1fb; background:
     radial-gradient(circle at 12% 18%, rgba(148,133,224,0.55), transparent 42%),
     radial-gradient(circle at 88% 8%, rgba(120,170,224,0.35), transparent 40%),
     radial-gradient(circle at 78% 78%, rgba(94,70,170,0.55), transparent 46%),
@@ -529,7 +529,18 @@ class Component extends DCLogic {
     this.setState((s) => ({ openGuide: s.openGuide === i ? null : i }));
   }
 
-  scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Embedded, the page has no scroll of its own — the host owns it. Ask the
+  // host to scroll; if no host script answers, a fragment navigation still
+  // pulls the frame into view in ancestors.
+  scrollToTop = () => {
+    if (window.parent === window) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    this._topAck = false;
+    window.parent.postMessage({ __gluumiEmbed: true, type: 'scroll-top' }, '*');
+    setTimeout(() => {
+      if (this._topAck) return;
+      try { location.hash = '#gluumi-top'; } catch (e) {}
+    }, 250);
+  };
 
   goSolution = () => this.setState({ page: 'solution' });
   goMain = () => this.setState({ page: 'main' });
@@ -697,7 +708,22 @@ class Component extends DCLogic {
       cancelAnimationFrame(this._cursorRaf);
     };
 
+    // With no scroll of our own, a host scroll moves the document under a
+    // stationary pointer and no pointermove fires — the cursor would lag until
+    // the next move. Re-anchor it each frame to whatever scroll signal we have.
+    let anchorY, anchorLift;
     const tick = () => {
+      const hy = this._hostScrollY;
+      if (typeof hy === 'number') {
+        if (typeof anchorY === 'number') ty += hy - anchorY;
+        anchorY = hy;
+      } else {
+        const lift = this._fabLift;
+        if (typeof lift === 'number' && isFinite(lift)) {
+          if (typeof anchorLift === 'number') ty += anchorLift - lift;
+          anchorLift = lift;
+        }
+      }
       const now = performance.now();
       const still = now - lastMove;
       let want;
@@ -730,7 +756,7 @@ class Component extends DCLogic {
   // visibility flips as the band moves, which is what we actually need to know.
   _initFabTracking() {
     if (window.parent === window) return;
-    const STEP = 8;
+    const STEP = 4;
     this._teardownFabTracking();
     const vh = window.innerHeight || 0;
     if (!vh) return;
@@ -753,6 +779,7 @@ class Component extends DCLogic {
       if (!visible.size) return;
       let lift = Infinity;
       visible.forEach((off) => { if (off < lift) lift = off; });
+      this._fabLift = lift;
       document.querySelectorAll('[data-fab]').forEach((el) => {
         el.style.bottom = (parseFloat(el.dataset.fab) || 0) + lift + 'px';
       });
@@ -764,6 +791,7 @@ class Component extends DCLogic {
       });
       apply();
     }, { threshold: 0 });
+    this._fabApply = apply;
     strips.forEach((s) => this._fabIO.observe(s));
 
     if (!this._fabResize) {
@@ -795,9 +823,32 @@ class Component extends DCLogic {
     window.parent.postMessage({ __gluumiEmbed: true, type: 'contact' }, '*');
     setTimeout(() => {
       if (this._contactAck) return;
-      try { window.top.location.href = CONTACT_URL; }
-      catch (err) { window.open(CONTACT_URL, '_blank', 'noopener'); }
+      // Only hijack the top window when artmug is actually the host; in any
+      // other embed (an editor preview, say) a new tab is the safe fallback.
+      let onArtmug = false;
+      try {
+        const anc = location.ancestorOrigins;
+        if (anc && anc.length) {
+          for (let i = 0; i < anc.length; i++) if (anc[i].indexOf('artmug.kr') !== -1) onArtmug = true;
+        } else if (document.referrer.indexOf('artmug.kr') !== -1) onArtmug = true;
+      } catch (err) {}
+      if (onArtmug) { try { window.top.location.href = CONTACT_URL; return; } catch (err) {} }
+      window.open(CONTACT_URL, '_blank', 'noopener');
     }, 350);
+  }
+
+  // One listener for everything the host tells us: its scroll offset (used to
+  // keep the cursor pinned) and acks for the actions we delegate to it.
+  _initHostLink() {
+    if (window.parent === window) return;
+    this._hostLink = (e) => {
+      const d = e.data;
+      if (!d || !d.__gluumiEmbed) return;
+      if (d.type === 'scroll' && typeof d.y === 'number') this._hostScrollY = d.y;
+      else if (d.type === 'scroll-top-ack') this._topAck = true;
+    };
+    window.addEventListener('message', this._hostLink);
+    window.parent.postMessage({ __gluumiEmbed: true, type: 'hello' }, '*');
   }
 
   _initAutoHeight() {
@@ -820,6 +871,10 @@ class Component extends DCLogic {
     this._autoHeightT = setInterval(send, 400);
     window.addEventListener('load', send);
     send();
+  }
+
+  _teardownHostLink() {
+    if (this._hostLink) { window.removeEventListener('message', this._hostLink); this._hostLink = null; }
   }
 
   _teardownAutoHeight() {
@@ -928,6 +983,7 @@ class Component extends DCLogic {
     }
     this._initFabTracking();
     this._initAutoHeight();
+    this._initHostLink();
     // Printing must never catch the page mid-hide.
     this._revealPrintHandler = () => this._revealFailOpen();
     window.addEventListener('beforeprint', this._revealPrintHandler);
@@ -999,6 +1055,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     this._teardownAutoHeight();
+    this._teardownHostLink();
     if (this._cursorCleanup) this._cursorCleanup();
     if (this._onMove) window.removeEventListener('pointermove', this._onMove);
     if (this._onClick) window.removeEventListener('pointerdown', this._onClick);
