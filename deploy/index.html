@@ -894,21 +894,37 @@ class Component extends DCLogic {
 
   _initAutoHeight() {
     if (window.parent === window) return;
-    // A vh unit inside a frame the host grows to fit is a circular measurement:
-    // the viewport IS the content box, so #gluumi-top's min-height:100vh keeps
-    // the document at least as tall as the frame and the reported height can
-    // never come back down from the host's fallback. Drop it while embedded.
+    // A vh or percentage height inside a frame the host grows to fit is a
+    // circular measurement: the viewport IS the content box. #gluumi-top's
+    // min-height:100vh and the runtime's own html/body/#dc-root height:100%
+    // reset both keep the document as tall as the frame, so the height we
+    // report can never come back down from the host's fallback. Drop them
+    // while embedded; standalone they still do their job.
     if (!document.getElementById('gluumi-embed-vh')) {
       const s = document.createElement('style');
       s.id = 'gluumi-embed-vh';
-      s.textContent = '#gluumi-top{min-height:0 !important;}';
+      s.textContent = 'html,body{height:auto !important;}'
+        + '#dc-root,#dc-root > .sc-host{height:auto !important;}'
+        + '#gluumi-top{min-height:0 !important;}';
       (document.head || document.documentElement).appendChild(s);
     }
     let last = 0;
+    // Every document-level metric is floored at the viewport, and in a frame the
+    // host sizes to our own answer the viewport IS the frame: scrollHeight can
+    // never come back under the height we last asked for. Measure the content
+    // boxes instead, skipping fixed layers, so the frame is free to shrink.
     const send = () => {
       const d = document.documentElement;
       const b = document.body;
-      const h = Math.max(d.scrollHeight, b ? b.scrollHeight : 0, d.offsetHeight);
+      let h = 0;
+      const kids = b ? b.children : [];
+      for (let i = 0; i < kids.length; i++) {
+        const cs = getComputedStyle(kids[i]);
+        if (cs.position === 'fixed' || cs.display === 'none') continue;
+        const bottom = kids[i].getBoundingClientRect().bottom + (window.scrollY || 0);
+        if (bottom > h) h = bottom;
+      }
+      h = Math.ceil(h) || Math.max(d.scrollHeight, b ? b.scrollHeight : 0, d.offsetHeight);
       if (!h || Math.abs(h - last) < 2) return;
       last = h;
       window.parent.postMessage({ __gluumiEmbed: true, type: 'height', height: h }, '*');
