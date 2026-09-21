@@ -800,8 +800,16 @@ class Component extends DCLogic {
     const apply = () => {
       if (!visible.size) return;
       let lift = Infinity;
-      visible.forEach((off) => { if (off < lift) lift = off; });
+      let ceil = -Infinity;
+      visible.forEach((off) => { if (off < lift) lift = off; if (off > ceil) ceil = off; });
       this._fabLift = lift;
+      // The same strips read the other way round: the span between the highest
+      // and lowest visible offset is the slice of this frame the top-level
+      // viewport actually shows. That is what the reveal sweep needs, since
+      // innerHeight here is the whole document.
+      const prevBand = this._visBand;
+      this._visBand = { top: vh - ceil, bottom: vh - lift };
+      if (!prevBand || Math.abs(prevBand.top - this._visBand.top) > 1) this._queueRevealSweep();
       document.querySelectorAll('[data-fab]').forEach((el) => {
         el.style.bottom = (parseFloat(el.dataset.fab) || 0) + lift + 'px';
       });
@@ -891,6 +899,16 @@ class Component extends DCLogic {
 
   _initAutoHeight() {
     if (window.parent === window) return;
+    // A vh unit inside a frame the host grows to fit is a circular measurement:
+    // the viewport IS the content box, so #gluumi-top's min-height:100vh keeps
+    // the document at least as tall as the frame and the reported height can
+    // never come back down from the host's fallback. Drop it while embedded.
+    if (!document.getElementById('gluumi-embed-vh')) {
+      const s = document.createElement('style');
+      s.id = 'gluumi-embed-vh';
+      s.textContent = '#gluumi-top{min-height:0 !important;}';
+      (document.head || document.documentElement).appendChild(s);
+    }
     let last = 0;
     const send = () => {
       const d = document.documentElement;
@@ -935,13 +953,26 @@ class Component extends DCLogic {
     if (!targets.length) return;
     document.querySelectorAll('[data-hero]:not(.hero-run)').forEach((el) => el.classList.add('hero-run'));
     document.body.classList.add('rv-on');
-    const vh = window.innerHeight || 800;
     const vw = window.innerWidth || 1200;
+    // Standalone this is just the viewport; embedded it is the band the host
+    // page shows, measured by the strip ladder in _initFabTracking.
+    const band = this._visBand;
+    // Embedded, the band is the only honest viewport we have. It arrives a
+    // frame or two after the ladder mounts, so hold the sweep briefly rather
+    // than falling back to innerHeight and revealing the whole page at once —
+    // but never hold long enough to leave the content stuck hidden.
+    if (!band && window.parent !== window) {
+      if (!this._bandWaitFrom) this._bandWaitFrom = Date.now();
+      if (Date.now() - this._bandWaitFrom < 1500) return;
+    }
+    const bandTop = band ? band.top : 0;
+    const bandBottom = band ? band.bottom : (window.innerHeight || 800);
+    const bandSpan = Math.max(1, bandBottom - bandTop);
     targets.forEach((el) => {
       if (el.classList.contains('rv-in')) return;
       const r = el.getBoundingClientRect();
       if (!r.width && !r.height) return;
-      const inY = r.top < vh * 0.94 && r.bottom > 0;
+      const inY = r.top < bandBottom - bandSpan * 0.06 && r.bottom > bandTop;
       const inX = r.left < vw && r.right > 0;
       if (inY && inX) el.classList.add('rv-in');
     });

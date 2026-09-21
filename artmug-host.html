@@ -1,0 +1,200 @@
+<iframe id="gluumi" src="https://ugulsunday1306-droid.github.io/UGUL-Web/?v=12" style="width:100%;height:5900px;border:0;display:block" scrolling="no"></iframe>
+
+<script>
+(function(){
+  var BASE_URL = 'https://ugulsunday1306-droid.github.io/UGUL-Web/';
+  var f = document.getElementById('gluumi');
+
+  function send(msg){
+    if (f && f.contentWindow) f.contentWindow.postMessage(
+      Object.assign({__gluumiEmbed:true}, msg), '*');
+  }
+  function sendScroll(){ send({type:'scroll', y: window.scrollY || window.pageYOffset}); }
+  addEventListener('scroll', sendScroll, {passive:true});
+  addEventListener('resize', sendScroll, {passive:true});
+
+  /* ================= 커스텀 커서 ================= */
+  var HOT_X = 11.47, HOT_Y = 7.95;
+  var SPRITES = {
+    idle:    BASE_URL + 'cursor-idle.png',
+    move:    BASE_URL + 'cursor-move.png',
+    hover:   BASE_URL + 'cursor-hover.png',
+    click:   BASE_URL + 'cursor-click.png',
+    loading: BASE_URL + 'cursor-loading.png'
+  };
+  Object.keys(SPRITES).forEach(function(k){ var i = new Image(); i.src = SPRITES[k]; });
+
+  var cur = document.createElement('img');
+  cur.src = SPRITES.idle;
+  cur.alt = '';
+  cur.style.cssText = 'position:fixed; left:0; top:0; width:97.5px; height:90px;'
+    + 'pointer-events:none; z-index:2147483647; opacity:0; will-change:transform;'
+    + 'transition:opacity .2s ease;';
+  document.documentElement.appendChild(cur);
+
+  var css = document.createElement('style');
+  css.textContent = '*, *::before, *::after { cursor: none !important; }';
+  document.head.appendChild(css);
+
+  // 포인터는 한 곳에만 있으므로 중재하지 않는다 — 마지막 신호가 곧바로 이긴다.
+  var state = 'idle', cx = innerWidth/2, cy = innerHeight/2;
+  var inFrame = false, hostMoveAt = 0, clickUntil = 0, hoverHit = false, seen = false;
+
+  function setCur(s){
+    if (s === state) return;
+    state = s;
+    cur.src = SPRITES[s];
+  }
+
+  function draw(){
+    if (!inFrame) {
+      var now = performance.now();
+      var want;
+      if (now < clickUntil) want = 'click';
+      else if (hoverHit) want = 'hover';
+      else if (now - hostMoveAt > 3000) want = 'loading';
+      else want = 'idle';
+      setCur(want);
+    }
+    cur.style.transform = 'translate3d(' + (cx - HOT_X) + 'px,' + (cy - HOT_Y) + 'px,0)';
+    cur.style.opacity = seen ? '1' : '0';
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  addEventListener('pointermove', function(e){
+    inFrame = false;
+    hostMoveAt = performance.now();
+    cx = e.clientX; cy = e.clientY;
+    seen = true;
+    hoverHit = !!(e.target && e.target.closest &&
+      e.target.closest('a, button, input, select, textarea, [onclick], .hand, .btn_qna, .btn_order, .sBtn1, .click_box'));
+  }, {passive:true});
+
+  addEventListener('pointerdown', function(){ clickUntil = performance.now() + 320; }, {passive:true});
+
+  // 브라우저 창 자체를 벗어날 때만 숨기다 (iframe 진입은 "나감"이 아니다).
+  document.addEventListener('mouseleave', function(e){
+    if (e.relatedTarget || e.toElement || inFrame) return;
+    seen = false;
+  });
+
+  /* ================= iframe에서 오는 메시지 ================= */
+  addEventListener('message', function(e){
+    var d = e.data;
+    if (!d || !d.__gluumiEmbed) return;
+
+    if (d.type === 'hello') {
+      sendScroll();
+      send({type:'hide-fabs'});
+      send({type:'host-cursor'});
+    }
+
+    if (d.type === 'height' && f) f.style.height = d.height + 'px';
+
+    if (d.type === 'cursor' && f) {
+      var r = f.getBoundingClientRect();
+      inFrame = true;
+      cx = r.left + d.x;
+      cy = r.top + d.y;
+      seen = !!d.seen;
+      setCur(d.state);
+    }
+
+    if (d.type === 'cursor-leave') inFrame = false;
+  });
+
+  /* ================= 플로팅 버튼 ================= */
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed; right:28px; bottom:24px; z-index:9999;'
+    + 'display:flex; flex-direction:column; gap:10px; opacity:0; pointer-events:none;'
+    + 'transition:opacity .25s ease;';
+
+  var BASE = 'box-sizing:border-box; width:50px; height:50px; display:flex;'
+    + 'align-items:center; justify-content:center; padding:0; border-radius:50%;'
+    + 'color:#f6f2ff; cursor:none; border:1px solid rgba(183,124,255,0.5);'
+    + 'background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%);'
+    + '-webkit-backdrop-filter:blur(18px) saturate(170%);'
+    + 'box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(183,124,255,0.22);'
+    + 'transition:background .25s ease, border-color .25s ease, box-shadow .25s ease;';
+
+  function mk(title, inner, onclick){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.title = title;
+    b.setAttribute('aria-label', title);
+    b.style.cssText = BASE;
+    b.innerHTML = inner;
+    b.onmouseenter = function(){
+      b.style.background = 'rgba(60,48,94,0.85)';
+      b.style.borderColor = 'rgba(197,150,255,0.85)';
+      b.style.boxShadow = '0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45)';
+    };
+    b.onmouseleave = function(){
+      b.style.background = 'rgba(40,33,62,0.72)';
+      b.style.borderColor = 'rgba(183,124,255,0.5)';
+      b.style.boxShadow = '0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(183,124,255,0.22)';
+    };
+    b.onclick = onclick;
+    wrap.appendChild(b);
+    return b;
+  }
+
+  function svg(stroke, path, rotate){
+    return '<svg viewBox="0 0 24 24" width="22" height="22" style="display:block;'
+      + 'fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round;'
+      + 'stroke-width:' + stroke + '; transition:transform .3s ease;'
+      + (rotate ? ' transform:rotate(' + rotate + 'deg);' : '') + '">' + path + '</svg>';
+  }
+  var CHEV = '<polyline points="9 6 15 12 9 18"></polyline>';
+
+  mk('작가에게 문의',
+    svg(1.9, '<path d="M21 12a8 8 0 0 1-8 8H8l-4 3v-4.2A8 8 0 0 1 4 12a8 8 0 0 1 8-8h1a8 8 0 0 1 8 8z"></path>'),
+    function(){
+      var btn = document.querySelector('.btn_qna');
+      if (btn) btn.click();
+    });
+
+  var flipped = false;
+  var toggle = mk('페이지 전환', svg(3, CHEV), function(){
+    send({type:'toggle-page'});
+    flipped = !flipped;
+    toggle.querySelector('svg').style.transform = flipped ? 'rotate(180deg)' : 'rotate(0deg)';
+  });
+
+  mk('상단으로', svg(3, CHEV, -90), function(){
+    if (!f) return;
+    var top = f.getBoundingClientRect().top + (window.scrollY || window.pageYOffset);
+    window.scrollTo({top: top, behavior: 'smooth'});
+  });
+
+  document.body.appendChild(wrap);
+
+  function updateVis(){
+    if (!f) return;
+    var r = f.getBoundingClientRect();
+    var on = r.top < window.innerHeight - 80 && r.bottom > 80;
+    wrap.style.opacity = on ? '1' : '0';
+    wrap.style.pointerEvents = on ? 'auto' : 'none';
+  }
+  addEventListener('scroll', updateVis, {passive:true});
+  addEventListener('resize', updateVis, {passive:true});
+  updateVis();
+
+  /* ================= "내용 더 보기" 자동 펼치기 ================= */
+  var tries = 0;
+  var t = setInterval(function(){
+    var b = document.querySelector('.btn_open_btn');
+    if (b) {
+      clearInterval(t);
+      ['.btn_open', '.btn_open_btn', '.btn_open_btn i'].forEach(function(sel){
+        var el = document.querySelector(sel);
+        if (el) el.click();
+      });
+      setTimeout(updateVis, 400);
+    } else if (++tries > 20) {
+      clearInterval(t);
+    }
+  }, 300);
+})();
+</script>

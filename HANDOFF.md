@@ -25,12 +25,15 @@ VRChat 아바타 커미션 작가(Gluumi)의 포트폴리오 페이지.
 | `cursor-*.png` | 커스텀 커서 스프라이트 5종 (idle / move / hover / click / loading) |
 | `facial-1~5.mp4` | 페이셜 데모 영상 |
 | `unity-cursor-bridge.html` | Unity WebGL 안에서 커서 상태를 부모로 전달하는 브리지 |
-| `github.md` | 원본 참조 레포 기록 |
+| `github.md` | 콘텐츠 참조용 원본 레포 기록 (배포처 아님) |
+| `artmug-host.html` | **artmug 호스트 스크립트 백업** (2026-09-21 라이브 DOM에서 추출) |
 
 > **중요**: 세 HTML은 항상 동기화되어야 합니다. 소스 수정 → `index.html`, `deploy/index.html`에 동일 내용 복사.
 
 ### 외부 리소스
-- 배포처: `https://ugulsunday1306-droid.github.io/` (레포 `ugulsunday1306-droid/Gluumi_Web`, branch `main`)
+- 배포처: `https://ugulsunday1306-droid.github.io/UGUL-Web/` (레포 `ugulsunday1306-droid/UGUL-Web`, branch `main`, **루트 서빙**) — 2026-09-21 브라우저로 확인
+  - 루트 `index.html`이 실제 서빙본. `deploy/` 폴더도 그대로 배포돼 `/UGUL-Web/deploy/`로 접근 가능(중복본)
+  - `github.md`의 `Gluumi_Web`은 **콘텐츠 참조용 원본 레포**이지 배포처가 아님
 - Unity WebGL 아바타 데모: `https://ugulsunday1306-droid.github.io/unity/`
   - MagicaCloth2 + Final IK 사용, Gzip 압축 해제 설정 적용됨
 - 문의 페이지: `https://artmug.kr/index.php?channel=view&uid=31692`
@@ -70,8 +73,8 @@ artmug.kr 페이지 (호스트)
   3. 포트폴리오 최상단으로 스크롤 (iframe 시작점이 아니라 artmug 페이지 기준)
 - **커스텀 커서 렌더링** — artmug 전체 페이지에서 커서가 보이도록 호스트가 직접 `requestAnimationFrame`으로 그림
 
-> ⚠️ 호스트 스크립트 본문은 이 프로젝트 안에 파일로 저장돼 있지 않고 artmug 관리자 페이지에만 있습니다.
-> 새 환경에서 작업을 시작하면 **artmug 관리자 페이지의 HTML 입력란에서 현재 스크립트를 먼저 복사해 와서** 프로젝트에 `artmug-host.html`로 저장해 두세요.
+> ✅ 2026-09-21: 호스트 스크립트를 라이브 페이지 DOM(`div.showcontent`)에서 그대로 떠서 `artmug-host.html`로 저장해 뒀습니다.
+> 관리자 페이지 원문이 아니라 브라우저가 파싱한 결과이므로, 붙여넣기로 되돌릴 때는 관리자 입력란 원문과 한 번 대조하세요.
 
 ---
 
@@ -90,14 +93,21 @@ artmug.kr 페이지 (호스트)
 | `contact` | — | 문의 모달 열어달라 (200ms 내 ack 없으면 iframe이 직접 `window.top.location`으로 이동) |
 | `scroll-top` | — | artmug 페이지 최상단으로 스크롤 |
 
-### 호스트 → iframe
+### 호스트 → iframe (실제 구현 기준, 2026-09-21 검증)
 
-| type | 의미 |
-| --- | --- |
-| `host-cursor` | "커서는 내가 그린다" — iframe은 자기 커서를 숨기고 좌표만 전송 |
-| `toggle-page` | Main ↔ Solutions 전환 |
-| `hide-fabs` | iframe 안의 플로팅 버튼 숨김 (호스트가 대신 그리므로) |
-| 포인터 이동 전달 | 호스트의 pointermove를 iframe으로 전달해 경계에서 끊김 없이 움직이게 함 |
+| type | 의미 | 상태 |
+| --- | --- | --- |
+| `scroll` | 호스트의 `window.scrollY` 전달. iframe이 `_hostScrollY`로 받아 커서 좌표 보정에 사용 | ✅ (문서에 누락돼 있었음) |
+| `host-cursor` | "커서는 내가 그린다" — iframe은 자기 커서를 숨기고 좌표만 전송 | ✅ |
+| `toggle-page` | Main ↔ Solutions 전환 | ✅ |
+| `hide-fabs` | iframe 안의 플로팅 버튼 숨김 (호스트가 대신 그림) | ✅ |
+| `contact-ack` / `scroll-top-ack` | iframe이 기다리는 ack | ❌ **호스트에 핸들러 없음** |
+| 포인터 이동 전달 | — | ❌ **구현 안 돼 있음.** 호스트는 자기 `pointermove`를 자기 커서에만 쓰고 iframe으로 보내지 않음 |
+
+호스트의 `message` 핸들러가 실제로 처리하는 것은 `hello`, `height`, `cursor`, `cursor-leave` 네 개뿐입니다.
+iframe이 보내는 `contact` / `scroll-top`은 **호스트가 무시**하므로:
+- `contact` → 200ms 후 폴백으로 `window.top.location` 이동 (모달 안 열림)
+- `scroll-top` → 아무 일도 안 일어남 (단, 호스트 FAB이 자체 로직으로 스크롤하므로 체감 문제는 없음)
 
 **커서 소유권 규칙**: 시간 기반 조정(time-based arbitration) 없음. **마지막 신호가 즉시 주도권을 가짐** (iframe이든 호스트 pointermove든). 이 방식으로 경계에서 깜빡임/버벅임 제거함.
 
@@ -119,11 +129,39 @@ artmug.kr 페이지 (호스트)
 ## 7. 현재 상태 / 다음 할 일
 
 현재 iframe 버전: `?v=12` (캐시 무효화용 — 배포할 때마다 숫자 올리기)
+배포본 SHA-256 = 로컬 `index.html` / `deploy/index.html`과 일치 (`6bbb0c49…f995`) — 세 파일 동기화 OK.
+
+### 2026-09-21 브라우저 검증 결과
+
+동작하는 것:
+- iframe 로드, `hello` 핸드셰이크, `hide-fabs` + `host-cursor` 응답 ✅
+- 호스트 플로팅 버튼 3개 렌더 + IntersectionObserver 기반 표시/숨김 ✅
+- 페이지 토글 버튼 → Solutions 전환 ✅
+- 커스텀 커서 호스트 렌더 ✅
+
+**🔴 미해결 1 — iframe 자동 높이가 순환 참조로 잠김**
+- iframe이 보내는 height가 첫 1회 `5900`뿐이고 이후 갱신 없음. 즉 폴백값에 고정.
+- 원인: `#gluumi-top`의 `min-height:100vh`. 임베드 안에서 `100vh` = iframe 엘리먼트 높이(5900px)이므로
+  `documentElement.scrollHeight`가 항상 5900 이상 → 높이가 절대 줄지 않는 순환 측정.
+- 같은 폭(1180px)에서 독립 실행 시 실제 콘텐츠 높이는 **5705px** → 임베드에서 약 200px 빈 공간.
+- 방향: 부모가 있을 때(`window.parent !== window`) `#gluumi-top`의 `min-height`를 해제하거나
+  래퍼 엘리먼트 높이로 측정하도록 `_initAutoHeight` 수정.
+
+**🔴 미해결 2 — 임베드에서 `window.innerHeight`가 5900이라 스크롤 연출이 죽음**
+- `data-reveal` 페이드인(`vh * 0.94` 판정)과 커서 스텝 계산이 전부 `window.innerHeight` 기준.
+- 임베드에선 뷰포트가 5900px로 잡혀 모든 섹션이 즉시 reveal 처리 → 페이드인 효과 사실상 무효.
+- 호스트는 `scroll`(y)만 보내고 자기 `innerHeight`는 안 보냄. 프로토콜에 호스트 뷰포트 높이 추가 필요.
+
+**🟡 미해결 3 — `contact` / `scroll-top` 호스트 핸들러 부재** (§5 참고)
+- 문의 버튼이 모달 대신 페이지 이동으로 폴백 중.
+
+**🟡 기타**
+- 배포본 `<title>`이 비어 있음.
+- `deploy/` 폴더가 루트와 중복 배포 중 (`/UGUL-Web/deploy/` 200).
 
 확인이 남은 것:
-- 실제 artmug 페이지에서 커서 경계 동작 최종 검증
-- iframe 자동 높이가 모든 뷰포트에서 정상 동작하는지 (현재 5900px 폴백 의존 중)
 - 모바일 레이아웃
+- 커서 경계(iframe ↔ 호스트) 전환 실제 마우스 이동 테스트 — 자동화 클릭으로는 재현이 어려움, 수동 확인 권장
 
 ---
 
