@@ -679,7 +679,13 @@ class Component extends DCLogic {
       overGuide = !!(t && t.closest('[data-cursor-hover]'));
       if (!seen) { seen = true; el.style.opacity = '1'; }
     };
-    const leave = () => { inside = false; el.style.opacity = '0'; };
+    const leave = () => {
+      inside = false;
+      el.style.opacity = '0';
+      // Tell the host the moment the pointer leaves, so it can take the cursor
+      // back on the very next frame instead of waiting for a timeout.
+      if (this._hostCursor) window.parent.postMessage({ __gluumiEmbed: true, type: 'cursor-leave' }, '*');
+    };
     const enter = () => { inside = true; if (seen) el.style.opacity = '1'; };
     const down = () => { pressed = true; clickUntil = performance.now() + 320; };
     const up = () => { pressed = false; };
