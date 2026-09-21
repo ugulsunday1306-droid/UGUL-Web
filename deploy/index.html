@@ -554,6 +554,8 @@ class Component extends DCLogic {
     }, 250);
   };
 
+  togglePage = () => this.setState((s) => ({ page: s.page === 'solution' ? 'main' : 'solution' }));
+
   goSolution = () => this.setState({ page: 'solution' });
   goMain = () => this.setState({ page: 'main' });
   toggleDetail = () => this.setState((s) => ({ detailOpen: !s.detailOpen }));
@@ -744,6 +746,12 @@ class Component extends DCLogic {
       else if (overSolution) want = 'move';
       else if (still > 3000) want = 'loading';   // dozes off after 3s idle
       else want = 'idle';
+      if (this._hostCursor) {
+        el.style.opacity = '0';
+        window.parent.postMessage({ __gluumiEmbed: true, type: 'cursor', x: tx, y: ty, state: want, seen: seen }, '*');
+        this._cursorRaf = requestAnimationFrame(tick);
+        return;
+      }
       setState(want);
       el.style.transform = 'translate3d(' + (tx - HOT_X) + 'px,' + (ty - HOT_Y) + 'px,0)';
       this._cursorRaf = requestAnimationFrame(tick);
@@ -854,6 +862,7 @@ class Component extends DCLogic {
       if (d.type === 'scroll' && typeof d.y === 'number') this._hostScrollY = d.y;
       else if (d.type === 'scroll-top-ack') this._topAck = true;
       else if (d.type === 'hide-fabs') this._hideFabs();
+      else if (d.type === 'host-cursor') this._hostCursor = true;
       else if (d.type === 'toggle-page') this.togglePage();
     };
     window.addEventListener('message', this._hostLink);
@@ -1418,7 +1427,7 @@ class Component extends DCLogic {
       setTopBtnRef: (el) => { this._topBtn = el; },
       pageArrowStyle: this.state.page === 'solution' ? 'transform:rotate(180deg);' : '',
       pageBtnTitle: this.state.page === 'solution' ? '메인으로' : '솔루션 소개',
-      togglePage: () => this.setState((s) => ({ page: s.page === 'solution' ? 'main' : 'solution' })),
+      togglePage: this.togglePage,
       goSolution: this.goSolution,
       goMain: this.goMain,
       features: FEATURES,
