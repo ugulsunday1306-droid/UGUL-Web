@@ -95,8 +95,13 @@
     if (d.type === 'cursor' && f) {
       var r = f.getBoundingClientRect();
       inFrame = true;
+      // The frame anchors its y to the scroll value we last told it about,
+      // while this rect is read now. Mid-scroll those differ by the messaging
+      // lag, which is exactly how far the cursor slides. Cancel it.
+      var sy = window.scrollY || window.pageYOffset || 0;
+      var lag = (typeof d.sy === 'number') ? (sy - d.sy) : 0;
       cx = r.left + d.x;
-      cy = r.top + d.y;
+      cy = r.top + d.y + lag;
       seen = !!d.seen;
       setCur(d.state);
     }

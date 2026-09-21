@@ -747,7 +747,11 @@ class Component extends DCLogic {
       else want = 'idle';
       if (this._hostCursor) {
         el.style.opacity = '0';
-        if (inside) window.parent.postMessage({ __gluumiEmbed: true, type: 'cursor', x: tx, y: ty, state: want, seen: seen }, '*');
+        // ty is anchored to the host scroll we were last told about, but the
+        // host maps it through a rect it reads now — so mid-scroll the two
+        // disagree by exactly the messaging lag and the cursor slides. Send
+        // the scroll value ty stands on and let the host cancel the gap.
+        if (inside) window.parent.postMessage({ __gluumiEmbed: true, type: 'cursor', x: tx, y: ty, sy: (typeof hy === 'number' ? hy : null), state: want, seen: seen }, '*');
         this._cursorRaf = requestAnimationFrame(tick);
         return;
       }
