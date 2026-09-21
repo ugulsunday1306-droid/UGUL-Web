@@ -206,7 +206,7 @@
   <nav style="display: flex; align-items: center; gap: 22px; padding: 16px 40px; margin: 16px 24px 0; position: sticky; top: 16px; z-index: 20; border-radius: 14px; backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border: 1px solid rgba(255,255,255,0.18); box-shadow: 0px 8px 32px 0px #00000040; background: linear-gradient(180deg, #FFFFFF1A, #CBC8D08B)">
     <span style="font-weight: 600; font-size: 30px; letter-spacing: 0.02em; margin-right: auto">UGUL</span>
     <a href="#work" style="text-decoration:none; font-size:14px; color:#f3f1fb; opacity:0.85;">작업물</a>
-    <a href="https://artmug.kr/index.php?channel=view&amp;uid=31692" target="_top" onClick="{{ openContact }}" data-cursor-hover="1" style="text-decoration:none; font-size:14px; color:#f3f1fb; opacity:0.85; cursor:pointer;">문의</a>
+    
     
   </nav>
 
@@ -217,7 +217,7 @@
     <p style="font-size:17px; line-height:1.7; color:rgba(243,241,251,0.72); max-width:520px; margin:0 0 36px;">성형, 페이셜, 파티클, 애니메이션까지 — 상담부터 최종 납품까지 하나의 흐름으로 세심하게 진행합니다.</p>
     <div style="display:flex; gap:12px; margin-bottom:64px;">
       <a href="#work" data-light="1" style="display:inline-flex; align-items:center; font-weight:500; font-size:14px; color:#12111f; border:1px solid rgba(255,255,255,0.5); border-radius:14px; padding:11px 22px; text-decoration:none; background:rgba(255,255,255,0.85); backdrop-filter:blur(10px);">작업물 보기</a>
-      <a href="https://artmug.kr/index.php?channel=view&amp;uid=31692" target="_top" onClick="{{ openContact }}" data-cursor-hover="1" style="display:inline-flex; align-items:center; font-weight:500; font-size:14px; color:#f3f1fb; border:1px solid rgba(255,255,255,0.3); border-radius:14px; padding:11px 22px; text-decoration:none; background:rgba(255,255,255,0.08); backdrop-filter:blur(10px); cursor:pointer;">문의하기</a>
+      
     </div>
     <div style="display:flex; align-items:center; gap:10px; color:rgba(243,241,251,0.45); font-size:12px; animation:arrowBob 2.2s ease-in-out infinite;">
       <span>SCROLL</span>
@@ -455,6 +455,8 @@
 
   </div>
 
+  <button onClick="{{ openContact }}" data-cursor-hover="1" data-fab="140" type="button" title="작가에게 문의" aria-label="작가에게 문의" style="position:fixed; right:28px; bottom:140px; z-index:60; box-sizing:border-box; width:50px; height:50px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:50%; font-family:inherit; line-height:1; color:#f6f2ff; cursor:pointer; border:1px solid rgba(183,124,255,0.5); background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%); -webkit-backdrop-filter:blur(18px) saturate(170%); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(183,124,255,0.22); transition:bottom 0.12s linear, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;" style-hover="background:rgba(60,48,94,0.85); border-color:rgba(197,150,255,0.85); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45);"><svg viewBox="0 0 24 24" width="23" height="23" style="display:block; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 8px rgba(183,124,255,0.5));"><path d="M21 12a8 8 0 0 1-8 8H8l-4 3v-4.2A8 8 0 0 1 4 12a8 8 0 0 1 8-8h1a8 8 0 0 1 8 8z"></path></svg></button>
+
   <button onClick="{{ togglePage }}" data-cursor-move="1" data-fab="82" type="button" title="{{ pageBtnTitle }}" aria-label="{{ pageBtnTitle }}" style="position:fixed; right:28px; bottom:82px; z-index:60; box-sizing:border-box; width:50px; height:50px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:50%; font-family:inherit; font-size:26px; line-height:1; font-weight:800; text-shadow:0 0 10px rgba(183,124,255,0.55); color:#f6f2ff; cursor:pointer; border:1px solid rgba(183,124,255,0.5); background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%); -webkit-backdrop-filter:blur(18px) saturate(170%); animation:navPulse 2.6s ease-in-out infinite; transition:bottom 0.12s linear, background 0.25s ease, border-color 0.25s ease;" style-hover="background:rgba(60,48,94,0.85); border-color:rgba(197,150,255,0.85); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45);"><svg viewBox="0 0 24 24" width="22" height="22" style="display:block; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; {{ pageArrowStyle }}"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
 
   <button ref="{{ setTopBtnRef }}" onClick="{{ scrollToTop }}" data-cursor-hover="1" data-fab="24" type="button" title="상단으로" style="position:fixed; right:28px; bottom:24px; z-index:60; box-sizing:border-box; width:50px; height:50px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:50%; font-family:inherit; font-size:26px; line-height:1; font-weight:800; text-shadow:0 0 10px rgba(183,124,255,0.55); color:#f6f2ff; cursor:pointer; border:1px solid rgba(183,124,255,0.5); background:rgba(40,33,62,0.72); backdrop-filter:blur(18px) saturate(170%); -webkit-backdrop-filter:blur(18px) saturate(170%); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(183,124,255,0.22); transition:bottom 0.12s linear, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;" style-hover="background:rgba(60,48,94,0.85); border-color:rgba(197,150,255,0.85); box-shadow:0 8px 24px rgba(0,0,0,0.35), 0 0 26px rgba(183,124,255,0.45);"><svg viewBox="0 0 24 24" width="22" height="22" style="display:block; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; transform:rotate(-90deg);"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
@@ -548,7 +550,7 @@ class Component extends DCLogic {
     window.parent.postMessage({ __gluumiEmbed: true, type: 'scroll-top' }, '*');
     setTimeout(() => {
       if (this._topAck) return;
-      try { location.hash = '#gluumi-top'; } catch (e) {}
+      try { location.hash = ''; location.hash = '#gluumi-top'; } catch (e) {}
     }, 250);
   };
 
@@ -851,9 +853,20 @@ class Component extends DCLogic {
       if (!d || !d.__gluumiEmbed) return;
       if (d.type === 'scroll' && typeof d.y === 'number') this._hostScrollY = d.y;
       else if (d.type === 'scroll-top-ack') this._topAck = true;
+      else if (d.type === 'hide-fabs') this._hideFabs();
+      else if (d.type === 'toggle-page') this.togglePage();
     };
     window.addEventListener('message', this._hostLink);
     window.parent.postMessage({ __gluumiEmbed: true, type: 'hello' }, '*');
+  }
+
+  _hideFabs() {
+    this._hostFabs = true;
+    if (document.getElementById('gluumi-hide-fabs')) return;
+    const s = document.createElement('style');
+    s.id = 'gluumi-hide-fabs';
+    s.textContent = '[data-fab]{display:none !important;}';
+    document.head.appendChild(s);
   }
 
   _initAutoHeight() {

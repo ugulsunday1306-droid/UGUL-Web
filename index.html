@@ -853,9 +853,20 @@ class Component extends DCLogic {
       if (!d || !d.__gluumiEmbed) return;
       if (d.type === 'scroll' && typeof d.y === 'number') this._hostScrollY = d.y;
       else if (d.type === 'scroll-top-ack') this._topAck = true;
+      else if (d.type === 'hide-fabs') this._hideFabs();
+      else if (d.type === 'toggle-page') this.togglePage();
     };
     window.addEventListener('message', this._hostLink);
     window.parent.postMessage({ __gluumiEmbed: true, type: 'hello' }, '*');
+  }
+
+  _hideFabs() {
+    this._hostFabs = true;
+    if (document.getElementById('gluumi-hide-fabs')) return;
+    const s = document.createElement('style');
+    s.id = 'gluumi-hide-fabs';
+    s.textContent = '[data-fab]{display:none !important;}';
+    document.head.appendChild(s);
   }
 
   _initAutoHeight() {

@@ -1,0 +1,77 @@
+name: Cleanup old deployments
+
+on:
+  workflow_dispatch:
+    inputs:
+      keep:
+        description: "가장 최근 몇 개를 남길지"
+        required: true
+        default: "5"
+
+permissions:
+  deployments: write
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old deployments
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const keep = parseInt('${{ github.event.inputs.keep }}', 10) || 5;
+            const { owner, repo } = context.repo;
+
+            const all = await github.paginate(github.rest.repos.listDeployments, {
+              owner, repo, per_page: 100,
+            });
+            all.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const doomed = all.slice(keep);
+            core.info(`deployments: ${all.length}, deleting ${doomed.length}`);
+
+            for (const d of doomed) {
+              // A deployment can only be deleted once it is inactive.
+              try {
+                await github.rest.repos.createDeploymentStatus({
+                  owner, repo, deployment_id: d.id, state: 'inactive',
+                });
+              } catch (e) {
+                core.info(`status ${d.id}: ${e.message}`);
+              }
+              try {
+                await github.rest.repos.deleteDeployment({
+                  owner, repo, deployment_id: d.id,
+                });
+              } catch (e) {
+                core.info(`delete ${d.id}: ${e.message}`);
+              }
+            }
+
+      - name: Delete old workflow runs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const keep = parseInt('${{ github.event.inputs.keep }}', 10) || 5;
+            const { owner, repo } = context.repo;
+
+            const runs = await github.paginate(
+              github.rest.actions.listWorkflowRunsForRepo,
+              { owner, repo, per_page: 100 }
+            );
+            const pages = runs
+              .filter(r => r.name && r.name.toLowerCase().includes('pages'))
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const doomed = pages.slice(keep);
+            core.info(`pages runs: ${pages.length}, deleting ${doomed.length}`);
+
+            for (const r of doomed) {
+              try {
+                await github.rest.actions.deleteWorkflowRun({
+                  owner, repo, run_id: r.id,
+                });
+              } catch (e) {
+                core.info(`run ${r.id}: ${e.message}`);
+              }
+            }
