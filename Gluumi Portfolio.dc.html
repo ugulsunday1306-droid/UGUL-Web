@@ -659,6 +659,10 @@ class Component extends DCLogic {
     let tx = innerWidth / 2, ty = innerHeight / 2;
     let seen = false, pressed = false, state = '';
     let lastMove = 0, clickUntil = 0, overSolution = false, overGuide = false;
+    // Only true while the pointer is actually over this frame. When the host
+    // owns the cursor, reporting from a frame the pointer has left makes the
+    // two positions fight each frame.
+    let inside = false;
 
     const setState = (s) => {
       if (s === state) return;
@@ -667,6 +671,7 @@ class Component extends DCLogic {
     };
 
     const move = (e) => {
+      inside = true;
       tx = e.clientX; ty = e.clientY;
       lastMove = performance.now();
       const t = e.target && e.target.closest ? e.target : null;
@@ -674,8 +679,8 @@ class Component extends DCLogic {
       overGuide = !!(t && t.closest('[data-cursor-hover]'));
       if (!seen) { seen = true; el.style.opacity = '1'; }
     };
-    const leave = () => { el.style.opacity = '0'; };
-    const enter = () => { if (seen) el.style.opacity = '1'; };
+    const leave = () => { inside = false; el.style.opacity = '0'; };
+    const enter = () => { inside = true; if (seen) el.style.opacity = '1'; };
     const down = () => { pressed = true; clickUntil = performance.now() + 320; };
     const up = () => { pressed = false; };
 
@@ -739,7 +744,7 @@ class Component extends DCLogic {
       else want = 'idle';
       if (this._hostCursor) {
         el.style.opacity = '0';
-        window.parent.postMessage({ __gluumiEmbed: true, type: 'cursor', x: tx, y: ty, state: want, seen: seen }, '*');
+        if (inside) window.parent.postMessage({ __gluumiEmbed: true, type: 'cursor', x: tx, y: ty, state: want, seen: seen }, '*');
         this._cursorRaf = requestAnimationFrame(tick);
         return;
       }
