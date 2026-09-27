@@ -201,7 +201,7 @@
   </nav>
 
   <!-- Hero -->
-  <header data-hero="1" style="max-width:1180px; margin:0 auto; padding:96px 48px 88px;">
+  <header data-hero="1" style="max-width:1180px; margin:0 auto; padding:96px clamp(16px, 4vw, 48px) 88px;">
     <div style="display:inline-block; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:18px; padding:6px 14px; border-radius:999px; background:rgba(255,255,255,0.10); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.18);">VIRTUAL&nbsp;AVATAR CRAFT</div>
     <h1 style="font-size:clamp(36px,5.4vw,58px); font-weight:600; letter-spacing:-0.02em; line-height:1.12; margin:18px 0 22px; max-width:760px;">아바타에 디테일을 더하는<br>정교한 작업</h1>
     <p style="font-size:17px; line-height:1.7; color:rgba(243,241,251,0.72); max-width:520px; margin:0 0 36px;">성형, 페이셜, 파티클, 애니메이션까지 — 상담부터 최종 납품까지 하나의 흐름으로 세심하게 진행합니다.</p>
@@ -216,7 +216,7 @@
   </header>
 
   <!-- Main showcase stack -->
-  <section style="max-width: 1180px; margin: 0 auto; padding: 0 48px 56px; display: flex; flex-direction: column; align-items: center; width: 1088px; height: 1192px">
+  <section style="max-width: 1180px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px) 56px; display: flex; flex-direction: column; align-items: center;">
     <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:10px; align-self:flex-start;">Main Showcase</div>
     <div ref="{{ setShowcaseDragRef }}" style="position:relative; width:100%; aspect-ratio:1/1; margin-bottom:22px; touch-action:pan-y; cursor:grab;">
       <sc-for list="{{ showcaseCards }}" as="card" hint-placeholder-count="6">
@@ -233,7 +233,7 @@
   </section>
 
   <!-- Guide accordion -->
-  <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
+  <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 clamp(16px, 4vw, 48px) 56px;">
     <div style="position: relative; overflow: hidden; text-align: center; padding: 28px 24px 32px; border-radius: 22px; margin-bottom: 20px; box-shadow: 0px 0px 18px -1px #28292A9F; background: linear-gradient(4deg, #E9E6E6B8, #B3AAD7); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); opacity: 1">
       <h2 style="margin: 0; font-size: 48px; font-weight: 900; letter-spacing: -0.02em; color: #f3f5fe; text-decoration-line: none; line-height: 1.1; text-transform: uppercase">Guide</h2>
       <div style="width: min(50%,420px); height: 2px; margin: 16px auto 0; background: linear-gradient(180deg, #E8E3FDC4, #E3DAFF)"></div>
@@ -279,7 +279,7 @@
   </section>
 
   <!-- Work -->
-  <section id="work" data-reveal="1" style="max-width:1180px; margin:0 auto; padding:20px 48px 40px;">
+  <section id="work" data-reveal="1" style="max-width:1180px; margin:0 auto; padding:20px clamp(16px, 4vw, 48px) 40px;">
     <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:10px;">Selected Work</div>
     <h2 style="font-size:32px; margin:0 0 28px; font-weight:600;">작업물</h2>
 
@@ -347,13 +347,13 @@
       <span style="font-weight:600; font-size:20px; letter-spacing:0.02em; margin-left:auto;">SOLUTION GUIDE</span>
     </nav>
 
-    <header data-hero="1" style="max-width:1180px; margin:0 auto; padding:72px 48px 56px; display:flex; align-items:center; gap:40px; flex-wrap:wrap;">
+    <header data-hero="1" style="max-width:1180px; margin:0 auto; padding:72px clamp(16px, 4vw, 48px) 56px; display:flex; align-items:center; gap:40px; flex-wrap:wrap;">
       <div style="flex:1 1 420px; min-width:280px;">
         <div style="display:inline-block; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:18px; padding:6px 14px; border-radius:999px; background:rgba(255,255,255,0.10); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.18);">SETUP&nbsp;SOLUTION</div>
         <h1 style="font-size:clamp(32px,4.6vw,50px); font-weight:600; letter-spacing:-0.02em; line-height:1.16; margin:18px 0 22px; max-width:760px;">전용 솔루션으로<br>아바타를 세팅해드립니다</h1>
         <p style="font-size:16px; line-height:1.75; color:rgba(243,241,251,0.72); max-width:560px; margin:0;">직접 개발한 솔루션으로 기존 Built-In 환경을 벗어난 고퀄리티 URP환경으로 아바타를 좀 더 아름답게 표현해드립니다.</p>
       </div>
-      <div style="position: relative; width: 434px; flex: none; aspect-ratio: 1/1; height: 434px">
+      <div style="position: relative; width: min(434px, 100%); flex: none; aspect-ratio: 1/1;">
         <sc-for list="{{ showcaseCards }}" as="card" hint-placeholder-count="6">
           <div data-top="{{ card.isTop }}" style="position:absolute; inset:0; transition:transform 0.55s cubic-bezier(.22,1,.36,1), opacity 0.55s ease; {{ card.wrapStyle }}">
             <div style="width:100%; height:100%; border-radius:18px; overflow:hidden; background:rgba(28,24,46,0.62); border:1px solid rgba(255,255,255,0.18); box-shadow:0 12px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12);">
@@ -365,7 +365,7 @@
     </header>
 
     <!-- Feature list -->
-    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 clamp(16px, 4vw, 48px) 56px;">
       <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Features</div>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">
         <sc-for list="{{ features }}" as="f" hint-placeholder-count="6">
@@ -381,12 +381,12 @@
     </section>
 
     <!-- Tech demo carousel -->
-    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 56px;">
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 clamp(16px, 4vw, 48px) 56px;">
       <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Tech Demo</div>
       <div ref="{{ setDemoRef }}" style="display:flex; gap:20px; overflow-x:auto; scrollbar-width:none; cursor:grab; padding:6px 2px 14px; touch-action:pan-x;">
         <sc-for list="{{ demoItems }}" as="d" hint-placeholder-count="4">
           <div style="flex:0 0 clamp(240px, 30vw, 340px); user-select:none;">
-            <div style="position: relative; aspect-ratio: 16/10; border-radius: 18px; overflow: hidden; background: rgba(28,24,46,0.6); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12); width: 553px; height: 340px">
+            <div style="position: relative; aspect-ratio: 16/10; border-radius: 18px; overflow: hidden; background: rgba(28,24,46,0.6); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12);">
               <image-slot id="{{ d.id }}" ref="{{ d.setRef }}" shape="rect" fit="cover" placeholder="{{ d.hint }}" style="width:100%; height:100%;"></image-slot>
             </div>
             <div style="padding:10px 2px 0; font-size:13px; color:rgba(243,241,251,0.75);">{{ d.title }}</div>
@@ -396,12 +396,12 @@
     </section>
 
     <!-- Detailed guide: single button -->
-    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 40px;">
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 clamp(16px, 4vw, 48px) 40px;">
       <a href="https://unruly-cetacean-re2n1ax.gamma.site/" target="_blank" rel="noopener" data-light="1" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box; font-weight:700; font-size:16px; color:#3b2e6b; border:1px solid rgba(255,255,255,0.5); border-radius:999px; padding:18px 26px; text-decoration:none; background:#ffffff; box-shadow:0 8px 26px rgba(0,0,0,0.25), 0 0 18px rgba(183,124,255,0.3);">상세 이용 가이드 페이지로 이동 →</a>
     </section>
 
     <!-- Supported assets list -->
-    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 72px;">
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 clamp(16px, 4vw, 48px) 72px;">
       <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Core Feature</div>
       <div style="border-radius:20px; overflow:hidden; background:rgba(38,32,58,0.65); border:1px solid rgba(255,255,255,0.16); box-shadow:0 8px 26px rgba(0,0,0,0.22);">
         <sc-for list="{{ assetItems }}" as="a" hint-placeholder-count="6">
@@ -417,7 +417,7 @@
     </section>
 
     <!-- Avatar live preview (WebGL) -->
-    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 48px 96px;">
+    <section data-reveal="1" style="max-width:1180px; margin:0 auto; padding:0 clamp(16px, 4vw, 48px) 96px;">
       <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:#dcd5ff; margin-bottom:14px;">Live Demo</div>
       <div style="border-radius:20px; overflow:hidden; background:rgba(38,32,58,0.65); border:1px solid rgba(255,255,255,0.16); box-shadow:0 8px 26px rgba(0,0,0,0.22);">
         <button onClick="{{ toggleAvatar }}" data-cursor-move="1" style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 24px; background:none; border:0; color:#f3f1fb; text-align:left; cursor:pointer; font-family:inherit;">
